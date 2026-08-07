@@ -1,0 +1,1090 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Protection Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Client-side report → PDF export. No backend, no per-download cost. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+
+:root{
+  --studio-name: "Scalebound Paint Protection Kit";
+  --studio-city: "INDIA";
+  --studio-phone-display: "+91 90000 00000";
+  --studio-whatsapp: "919000000000"; /* digits only, country code, no + or spaces */
+  --toolkit-name: "Paint Protection Toolkit";
+
+  /* ---- Design tokens ---- */
+  --bg: #0a0b0d;
+  --panel: #15171b;
+  --panel-raised: #1c1f24;
+  --hairline: #2a2d33;
+  --text: #ece8e0;
+  --text-dim: #8b8d93;
+  --gold: #c9a15b;
+  --gold-soft: #e4c988;
+  --steel: #6a93ac;
+  --danger: #b5563f;
+  --ok: #6f9c76;
+  --radius: 2px;
+  --font-display: 'Oswald', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,161,91,0.08), transparent),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+  pointer-events:none;
+  z-index:0;
+}
+.wrap{position:relative; z-index:1; max-width:640px; margin:0 auto; padding:0 20px 80px;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+/* ---------- Header ---------- */
+header.top{
+  padding:28px 0 20px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--hairline);
+  margin-bottom:28px;
+}
+.studio-mark{display:flex; flex-direction:column; gap:2px;}
+.studio-mark .name{
+  font-family:var(--font-display); font-weight:600; font-size:15px;
+  letter-spacing:0.06em; text-transform:uppercase; color:var(--text);
+}
+.studio-mark .name span{color:var(--gold);}
+.studio-mark .toolkit{font-size:10.5px; color:var(--steel); letter-spacing:.1em; text-transform:uppercase; font-family:var(--font-mono);}
+.gauge-mini{width:34px;height:34px;flex-shrink:0;}
+
+/* ---------- Progress rail ---------- */
+.rail{display:flex; gap:6px; margin-bottom:34px;}
+.rail .seg{flex:1; height:3px; background:var(--hairline); border-radius:2px; overflow:hidden;}
+.rail .seg i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--steel),var(--gold)); transition:width .5s ease;}
+.rail .seg.done i{width:100%;}
+.rail .seg.active i{width:55%;}
+
+.step-label{font-family:var(--font-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); margin-bottom:8px;}
+.step-title{font-family:var(--font-display); font-weight:600; font-size:26px; letter-spacing:0.01em; margin-bottom:6px;}
+.step-sub{color:var(--text-dim); font-size:14px; margin-bottom:28px;}
+
+/* ---------- Steps ---------- */
+.step{display:none; animation:fadeIn .4s ease;}
+.step.active{display:block;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+.field{margin-bottom:20px;}
+.field label{display:block; font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; font-weight:500;}
+.field label span.opt{text-transform:none; font-weight:400; color:var(--text-dim);}
+select, input[type=text], input[type=tel], input[type=date]{
+  width:100%; background:var(--panel); border:1px solid var(--hairline);
+  color:var(--text); padding:13px 14px; font-size:15px; font-family:var(--font-body);
+  border-radius:var(--radius); appearance:none; -webkit-appearance:none;
+}
+select{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0L5 6L10 0' fill='none' stroke='%238b8d93' stroke-width='1.4'/></svg>");
+  background-repeat:no-repeat; background-position:right 14px center; padding-right:36px;
+}
+select:focus, input:focus{outline:2px solid var(--gold); outline-offset:1px; border-color:var(--gold);}
+
+.choice-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.choice-grid.cols-1{grid-template-columns:1fr;}
+.choice-grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+.choice{
+  background:var(--panel); border:1px solid var(--hairline); border-radius:var(--radius);
+  padding:14px 12px; cursor:pointer; text-align:left; color:var(--text);
+  font-family:var(--font-body); font-size:13.5px; font-weight:500;
+  transition:border-color .15s, background .15s; position:relative;
+}
+.choice small{display:block; color:var(--text-dim); font-weight:400; font-size:11.5px; margin-top:3px;}
+.choice:hover{border-color:var(--steel);}
+.choice.selected{border-color:var(--gold); background:var(--panel-raised);}
+.choice.selected::after{content:"✓"; position:absolute; top:8px; right:10px; color:var(--gold); font-size:12px;}
+
+/* ---------- Hero (opening screen) ---------- */
+.hero{text-align:center; padding:30px 0 10px;}
+.hero .eyebrow{font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; color:var(--gold); text-transform:uppercase; margin-bottom:10px;}
+.hero h1{font-family:var(--font-display); font-weight:600; font-size:30px; line-height:1.15; margin-bottom:14px;}
+.hero p.lead{color:var(--text-dim); font-size:14px; margin-bottom:32px; max-width:420px; margin-left:auto; margin-right:auto;}
+.hero-btn{
+  display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
+  padding:19px 20px; border-radius:var(--radius); font-family:var(--font-display);
+  font-weight:600; letter-spacing:.04em; text-transform:uppercase; font-size:14.5px;
+  cursor:pointer; margin-bottom:12px; border:1px solid var(--hairline);
+}
+.hero-btn.primary{background:var(--gold); color:#14100a; border-color:var(--gold);}
+.hero-btn.primary:hover{background:var(--gold-soft);}
+.hero-btn.secondary{background:transparent; color:var(--text);}
+.hero-btn.secondary:hover{border-color:var(--steel);}
+.hero-time{font-family:var(--font-mono); font-size:11px; color:var(--text-dim); letter-spacing:.05em; margin-top:6px;}
+.hero-skip{display:block; text-align:center; margin-top:18px; font-size:12px; color:var(--text-dim); text-decoration:underline; cursor:pointer;}
+.hero-tip{font-size:11.5px; color:var(--text-dim); margin-top:18px; line-height:1.6; border-top:1px solid var(--hairline); padding-top:16px;}
+
+/* ---------- Photo confirm ---------- */
+.confirm-photo{width:100%; border-radius:var(--radius); margin-bottom:14px; display:block;}
+.confirm-photo-empty{
+  border:1px dashed var(--hairline); border-radius:var(--radius); padding:40px 16px; text-align:center;
+  color:var(--text-dim); font-size:13px; margin-bottom:14px;
+}
+
+/* ---------- Buttons ---------- */
+.btn-row{display:flex; gap:12px; margin-top:32px;}
+button.btn{
+  font-family:var(--font-display); font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+  font-size:13px; padding:15px 20px; border-radius:var(--radius); border:1px solid var(--hairline);
+  background:transparent; color:var(--text); cursor:pointer; flex:1; transition:all .15s;
+}
+button.btn.primary{background:var(--gold); border-color:var(--gold); color:#14100a;}
+button.btn.primary:hover{background:var(--gold-soft);}
+button.btn.ghost:hover{border-color:var(--text-dim);}
+button.btn:disabled{opacity:0.35; cursor:not-allowed;}
+button.btn.wide{flex:none; width:100%;}
+
+/* ---------- Report ---------- */
+.report-header{text-align:center; margin-bottom:8px;}
+.report-header .eyebrow{font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--gold); text-transform:uppercase;}
+.report-header h1{font-family:var(--font-display); font-size:26px; font-weight:600; margin:6px 0 2px;}
+.report-header .sub{color:var(--text-dim); font-size:12.5px;}
+.report-header .rid{font-family:var(--font-mono); font-size:10.5px; color:var(--text-dim); margin-top:6px;}
+
+.gauge-wrap{display:flex; flex-direction:column; align-items:center; margin:26px 0 4px;}
+.gauge-score{font-family:var(--font-mono); font-weight:700; margin-top:-58px;}
+.gauge-score .num{font-size:38px; color:var(--gold);}
+.gauge-score .lbl{display:block; text-align:center; font-size:9.5px; letter-spacing:.13em; color:var(--text-dim); text-transform:uppercase; margin-top:2px;}
+.score-note{text-align:center; font-size:12px; color:var(--text-dim); max-width:440px; margin:10px auto 0; line-height:1.6;}
+.score-note b{color:var(--text);}
+
+.badge-row{display:flex; gap:10px; margin:18px 0 4px;}
+.badge-col{flex:1; text-align:center; background:var(--panel); border:1px solid var(--hairline); border-radius:var(--radius); padding:14px 8px;}
+.badge-col .blabel{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;}
+.badge-col .bval{font-family:var(--font-display); font-weight:600; font-size:15px;}
+.bval.high, .bval.veryhigh{color:var(--danger);}
+.bval.medium{color:var(--gold);}
+.bval.low{color:var(--ok);}
+
+.card{background:var(--panel); border:1px solid var(--hairline); border-radius:var(--radius); padding:20px; margin-bottom:14px;}
+.card h3{font-family:var(--font-display); font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:14px; font-weight:600;}
+.summary-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px 18px;}
+.summary-grid div span{display:block; font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
+.summary-grid div b{font-size:14px; font-weight:500;}
+
+.photo-frame{position:relative; border-radius:var(--radius); overflow:hidden; margin-bottom:6px;}
+.photo-frame img.report-photo{width:100%; display:block;}
+.photo-caption{font-size:10.5px; color:var(--text-dim); text-align:center; letter-spacing:.04em; margin-bottom:16px;}
+
+.insight-list{list-style:none; display:flex; flex-direction:column; gap:10px;}
+.insight-list li{display:flex; gap:10px; font-size:13px; align-items:flex-start;}
+.insight-list li .arrow{color:var(--gold); flex-shrink:0;}
+.insight-foot{font-size:11px; color:var(--text-dim); margin-top:12px; font-style:italic;}
+
+.rec-card{border:1px solid var(--hairline); border-radius:var(--radius); padding:18px; margin-bottom:12px; position:relative; background:var(--panel-raised);}
+.rec-card.primary{border-color:var(--gold);}
+.rec-tier{position:absolute; top:-9px; left:16px; background:var(--bg); padding:0 8px; font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold);}
+.rec-card.secondary .rec-tier{color:var(--steel);}
+.rec-card.budget .rec-tier{color:var(--text-dim);}
+.rec-name{font-family:var(--font-display); font-size:19px; font-weight:600; margin:6px 0 8px;}
+.match-tags{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;}
+.match-tags span{font-family:var(--font-mono); font-size:10px; letter-spacing:.03em; background:var(--bg); border:1px solid var(--hairline); color:var(--text-dim); padding:4px 8px; border-radius:2px;}
+.match-tags span::before{content:"✓ "; color:var(--gold);}
+.rec-why{font-size:13px; color:var(--text-dim); margin-bottom:10px;}
+.rec-highlights{list-style:none; margin:0 0 12px; display:flex; flex-direction:column; gap:6px;}
+.rec-highlights li{font-size:12.5px; padding-left:16px; position:relative; color:var(--text);}
+.rec-highlights li::before{content:"✓"; position:absolute; left:0; color:var(--gold); font-weight:700; font-size:11px;}
+.rec-meta{display:flex; gap:16px; font-family:var(--font-mono); font-size:11px; color:var(--text-dim);}
+.rec-meta b{color:var(--text); font-weight:600;}
+.rec-note{background:var(--bg); border:1px solid var(--gold); border-radius:var(--radius); padding:11px 13px; font-size:12px; color:var(--text); margin-bottom:12px; line-height:1.55;}
+.rec-note b{color:var(--gold);}
+
+.care-list{list-style:none;}
+.care-list li{display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--hairline); font-size:13px;}
+.care-list li:last-child{border-bottom:none;}
+.care-list li .tick{color:var(--ok); flex-shrink:0;}
+
+.timeline{list-style:none;}
+.timeline li{display:flex; gap:14px; padding:12px 0; border-bottom:1px solid var(--hairline);}
+.timeline li:last-child{border-bottom:none;}
+.timeline .when{font-family:var(--font-mono); font-size:11px; color:var(--gold); width:74px; flex-shrink:0; padding-top:2px;}
+.timeline .what b{display:block; font-size:13.5px; font-weight:600; margin-bottom:2px;}
+.timeline .what span{font-size:12.5px; color:var(--text-dim);}
+
+/* ---------- Comparison tables ---------- */
+.cmp-table{width:100%; border-collapse:collapse; font-size:12px;}
+.cmp-table th, .cmp-table td{padding:9px 6px; text-align:center; border-bottom:1px solid var(--hairline);}
+.cmp-table th{font-family:var(--font-mono); font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-dim); font-weight:500;}
+.cmp-table td:first-child, .cmp-table th:first-child{text-align:left; font-weight:500;}
+.cmp-table .stars{color:var(--gold); letter-spacing:1px; font-size:11px;}
+.cmp-table tfoot td{font-size:10.5px; color:var(--text-dim); text-align:left; padding-top:10px; border-bottom:none;}
+
+.split-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+.split-table th{font-family:var(--font-mono); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-dim); text-align:left; padding-bottom:10px; font-weight:500;}
+.split-table th:first-child{color:var(--text-dim);}
+.split-table th:last-child{color:var(--gold);}
+.split-table td{padding:7px 0; border-top:1px solid var(--hairline); vertical-align:top;}
+.split-table td:first-child{color:var(--text-dim); padding-right:12px;}
+
+/* ---------- Big inspection CTA ---------- */
+.inspect-banner{
+  background:linear-gradient(160deg, var(--panel-raised), var(--panel));
+  border:1px solid var(--gold); border-radius:var(--radius); padding:24px 20px; margin:22px 0 14px;
+}
+.inspect-banner .itag{font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin-bottom:8px;}
+.inspect-banner h3{font-family:var(--font-display); font-weight:600; font-size:19px; margin-bottom:12px; letter-spacing:0; text-transform:none; color:var(--text);}
+.inspect-banner p{font-size:13px; color:var(--text-dim); margin-bottom:10px; line-height:1.65;}
+.inspect-banner p:last-of-type{margin-bottom:0;}
+.inspect-banner .free-tag{display:inline-block; margin-top:14px; font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; color:var(--ok); border:1px solid var(--ok); padding:5px 10px; border-radius:2px;}
+
+.notice-box{background:var(--panel-raised); border:1px solid var(--hairline); border-radius:var(--radius); padding:16px 18px; font-size:11.5px; color:var(--text-dim); line-height:1.65; margin-bottom:14px;}
+.notice-box b{color:var(--text); font-weight:600; display:block; margin-bottom:6px; font-size:12px;}
+
+/* ---------- Ticket CTA ---------- */
+.ticket{border-radius:var(--radius); background:var(--panel-raised); border:1px solid var(--hairline); overflow:hidden; margin:22px 0 14px;}
+.ticket-top{padding:16px 18px; border-bottom:1.5px dashed var(--hairline); display:flex; justify-content:space-between; align-items:center; gap:10px;}
+.ticket-top .eyebrow2{font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; color:var(--steel); text-transform:uppercase;}
+.ticket-top .ttitle{font-family:var(--font-display); font-weight:600; font-size:16px; margin-top:2px;}
+.ticket-body{padding:16px 18px;}
+.ticket-body p{font-size:12.5px; color:var(--text-dim); margin-bottom:14px;}
+a.wa-btn{
+  display:inline-flex; align-items:center; gap:10px; justify-content:center;
+  background:#25D366; color:#0a0b0d; font-family:var(--font-display); font-weight:600;
+  text-transform:uppercase; letter-spacing:.05em; font-size:13.5px; padding:15px 26px;
+  border-radius:var(--radius); text-decoration:none; width:100%;
+}
+.download-btn{
+  width:100%; margin-top:10px; background:transparent; border:1px solid var(--hairline); color:var(--text);
+  font-family:var(--font-display); font-weight:600; letter-spacing:.05em; text-transform:uppercase; font-size:12.5px;
+  padding:13px 16px; border-radius:var(--radius); cursor:pointer;
+}
+.download-btn:hover{border-color:var(--gold);}
+.download-btn:disabled{opacity:.5; cursor:wait;}
+.contact-row{display:flex; justify-content:center; gap:22px; margin-top:14px; font-size:12.5px; color:var(--text-dim);}
+.contact-row a{color:var(--text-dim); text-decoration:none;}
+
+/* ---------- Scanning transition ---------- */
+.scan-frame{
+  position:relative; border:1px solid var(--hairline); border-radius:var(--radius); overflow:hidden;
+  height:230px; background:var(--panel); display:flex; align-items:center; justify-content:center; margin-top:60px;
+}
+.scan-frame img{width:100%; height:100%; object-fit:cover; filter:saturate(0.55) brightness(0.7);}
+.scan-frame .scan-icon{font-size:38px; color:var(--text-dim);}
+.scanline{
+  position:absolute; left:0; right:0; height:18%; top:-18%;
+  background:linear-gradient(180deg, transparent, rgba(201,161,91,0.35), transparent);
+  border-top:1px solid rgba(201,161,91,0.75); border-bottom:1px solid rgba(201,161,91,0.75);
+  animation:sweep 1.6s linear infinite;
+}
+@keyframes sweep{0%{top:-18%;} 100%{top:110%;}}
+.scan-msg{text-align:center; margin-top:20px; font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; color:var(--gold); min-height:16px;}
+.scan-title{text-align:center; font-family:var(--font-display); font-size:15px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-dim); margin-top:8px;}
+
+.footer-note{text-align:center; color:var(--text-dim); font-size:11px; margin-top:36px; letter-spacing:.03em;}
+.footer-note b{color:var(--gold);}
+
+@media print{
+  .rail, .btn-row, header.top, .no-export{display:none !important;}
+  body{background:#fff; color:#111;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="studio-mark">
+      <div class="name"><span>▮</span> <span id="hdrName"></span></div>
+      <div class="toolkit" id="hdrToolkit"></div>
+    </div>
+    <svg class="gauge-mini" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#2a2d33" stroke-width="2"/><circle cx="20" cy="20" r="17" fill="none" stroke="#c9a15b" stroke-width="2" stroke-dasharray="70 40" stroke-linecap="round" transform="rotate(-90 20 20)"/></svg>
+  </header>
+
+  <div class="rail" id="rail"></div>
+
+  <!-- STEP 0 : WELCOME / SCAN YOUR CAR -->
+  <section class="step active" data-step="0">
+    <div class="hero">
+      <div class="eyebrow">Vehicle Protection Assessment</div>
+      <h1>Know Your Car.<br>Protect It Better.</h1>
+      <p class="lead">Take or upload a photo of your car, answer a few quick questions, and get a personalised protection assessment.</p>
+      <div class="hero-btn primary" onclick="document.getElementById('cameraInput').click()">📷 Take a Photo</div>
+      <div class="hero-btn secondary" onclick="document.getElementById('galleryInput').click()">↑ Upload a Photo</div>
+      <div class="hero-time">Takes about 60 seconds</div>
+      <span class="hero-skip" onclick="skipPhoto()">Skip photo and continue</span>
+      <p class="hero-tip">For the best assessment, take a clear photo in daylight with the full vehicle visible. Avoid heavy filters, dark parking areas and blurry images.</p>
+    </div>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
+    <input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+  </section>
+
+  <!-- STEP 1 : CONFIRM PHOTO -->
+  <section class="step" data-step="1">
+    <div class="step-label">Step 1 of 4</div>
+    <h1 class="step-title">Your Vehicle</h1>
+    <p class="step-sub">Is this the vehicle you'd like to assess?</p>
+    <img id="photoPreview" class="confirm-photo" style="display:none;">
+    <div class="confirm-photo-empty" id="photoEmpty" style="display:none;">No photo added — that's okay, we'll continue without one.</div>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="retakePhoto()">Retake</button>
+      <button class="btn primary" onclick="goTo(2)">Looks Good ✓</button>
+    </div>
+  </section>
+
+  <!-- STEP 2 : VEHICLE INFO -->
+  <section class="step" data-step="2">
+    <div class="step-label">Step 2 of 4</div>
+    <h1 class="step-title">Tell us about your vehicle</h1>
+    <p class="step-sub">And who should we send the report to?</p>
+    <div class="field">
+      <label>Your name</label>
+      <input type="text" id="custName" placeholder="e.g. Rohan Bisht">
+    </div>
+    <div class="field">
+      <label>WhatsApp number <span class="opt">— optional</span></label>
+      <input type="tel" id="custPhone" placeholder="e.g. 98765 43210" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    </div>
+    <div class="field">
+      <label>Brand</label>
+      <select id="brand" onchange="populateModels()"></select>
+    </div>
+    <div class="field">
+      <label>Model</label>
+      <input list="modelList" id="model" placeholder="Start typing or pick from list">
+      <datalist id="modelList"></datalist>
+    </div>
+    <div class="field">
+      <label>Year of purchase</label>
+      <select id="year"></select>
+    </div>
+    <div class="field">
+      <label>Colour</label>
+      <select id="colour">
+        <option>Black</option><option>White</option><option>Grey / Silver</option>
+        <option>Red</option><option>Blue</option><option>Green</option><option>Brown</option>
+        <option>Other Dark</option><option>Other Light</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="goTo(1)">Back</button>
+      <button class="btn primary" onclick="validateStep2()">Continue</button>
+    </div>
+  </section>
+
+  <!-- STEP 3 : USAGE -->
+  <section class="step" data-step="3">
+    <div class="step-label">Step 3 of 4</div>
+    <h1 class="step-title">How do you use it?</h1>
+    <div class="field">
+      <label>When did you buy the car?</label>
+      <div class="choice-grid" id="ownershipAge">
+        <div class="choice" data-val="new">Just purchased</div>
+        <div class="choice" data-val="lt6">Less than 6 months</div>
+        <div class="choice" data-val="m6to12">6–12 months</div>
+        <div class="choice" data-val="y1to3">1–3 years</div>
+        <div class="choice" data-val="y3plus">3+ years</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Where do you drive most?</label>
+      <div class="choice-grid" id="driving">
+        <div class="choice" data-val="city">City</div>
+        <div class="choice" data-val="highway">Highway</div>
+        <div class="choice" data-val="hills">Hills</div>
+        <div class="choice" data-val="mixed">Mixed</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Where does your car sleep?</label>
+      <div class="choice-grid" id="parking">
+        <div class="choice" data-val="covered">Covered</div>
+        <div class="choice" data-val="basement">Basement</div>
+        <div class="choice" data-val="open">Open</div>
+        <div class="choice" data-val="mixed">Mixed</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>What's already on your car?</label>
+      <div class="choice-grid cols-3" id="existing">
+        <div class="choice" data-val="none">Nothing</div>
+        <div class="choice" data-val="wax">Wax</div>
+        <div class="choice" data-val="ceramic">Ceramic</div>
+        <div class="choice" data-val="graphene">Graphene</div>
+        <div class="choice" data-val="ppf">PPF</div>
+        <div class="choice" data-val="notsure">Not sure</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="goTo(2)">Back</button>
+      <button class="btn primary" onclick="validateStep3()">Continue</button>
+    </div>
+  </section>
+
+  <!-- STEP 4 : PRIORITIES -->
+  <section class="step" data-step="4">
+    <div class="step-label">Step 4 of 4</div>
+    <h1 class="step-title">What matters most to you?</h1>
+    <div class="field">
+      <label>Priority</label>
+      <div class="choice-grid cols-1" id="concern">
+        <div class="choice" data-val="protection">Maximum protection</div>
+        <div class="choice" data-val="gloss">Deep gloss</div>
+        <div class="choice" data-val="easyClean">Easy maintenance</div>
+        <div class="choice" data-val="resale">Preserve resale value</div>
+        <div class="choice" data-val="balanced">Balanced protection</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Budget comfort</label>
+      <div class="choice-grid" id="budget">
+        <div class="choice" data-val="economy">Economy <small>Value-focused</small></div>
+        <div class="choice" data-val="mid">Mid-range <small>Balanced</small></div>
+        <div class="choice" data-val="premium">Premium <small>Long-term protection</small></div>
+        <div class="choice" data-val="ultra">Ultra <small>Best available</small></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Planning to keep the car for</label>
+      <div class="choice-grid cols-3" id="ownership">
+        <div class="choice" data-val="short">1–2 yrs</div>
+        <div class="choice" data-val="mid">3–5 yrs</div>
+        <div class="choice" data-val="long">5+ yrs</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="goTo(3)">Back</button>
+      <button class="btn primary" onclick="validateStep4()">Generate Assessment</button>
+    </div>
+  </section>
+
+  <!-- SCAN TRANSITION -->
+  <section class="step" data-step="scan">
+    <div class="scan-frame">
+      <img id="scanPhoto" style="display:none;">
+      <div class="scan-icon" id="scanIcon">⛭</div>
+      <div class="scanline"></div>
+    </div>
+    <div class="scan-title">Building Your Vehicle Profile</div>
+    <div class="scan-msg" id="scanMsg">Reviewing vehicle details…</div>
+  </section>
+
+  <!-- STEP 5 : REPORT -->
+  <section class="step" data-step="5" id="reportStep">
+    <div class="report-header">
+      <div class="eyebrow">Vehicle Protection Assessment</div>
+      <h1 id="repName">—</h1>
+      <div class="sub" id="repDate"></div>
+      <div class="rid" id="repId"></div>
+    </div>
+
+    <div class="photo-frame" id="photoFrame" style="display:none;">
+      <img id="repPhoto" class="report-photo">
+    </div>
+    <div class="photo-caption" id="photoCaption" style="display:none;">Customer-provided image</div>
+
+    <div class="card">
+      <h3>Vehicle Summary</h3>
+      <div class="summary-grid" id="summaryGrid"></div>
+    </div>
+
+    <div class="gauge-wrap">
+      <svg width="220" height="130" viewBox="0 0 220 130">
+        <path d="M20,110 A90,90 0 0,1 200,110" fill="none" stroke="#2a2d33" stroke-width="14" stroke-linecap="round"/>
+        <path id="gaugeArc" d="M20,110 A90,90 0 0,1 200,110" fill="none" stroke="#c9a15b" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 283"/>
+      </svg>
+      <div class="gauge-score">
+        <div class="num" id="scoreNum">--</div>
+        <span class="lbl">Protection Priority Score</span>
+      </div>
+    </div>
+    <p class="score-note"><b>Based on the information you provided.</b> This score reflects your vehicle's age, colour, driving environment, parking exposure, existing protection and stated priorities. It is <b>not a measurement of paint thickness, paint condition or surface defects</b>.</p>
+
+    <div class="badge-row" id="badgeRow"></div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>What Your Driving Profile Suggests</h3>
+      <ul class="insight-list" id="insightList"></ul>
+      <div class="insight-foot">Profile-based insight — not a visual diagnosis of your photo.</div>
+    </div>
+
+    <div class="card">
+      <h3>Why Your Car May Be Losing Its Shine</h3>
+      <ul class="insight-list" id="shineList"></ul>
+    </div>
+
+    <div class="card">
+      <h3>Recommended Protection</h3>
+      <div id="recList"></div>
+    </div>
+
+    <div class="card">
+      <h3>How Protection Helps</h3>
+      <ul class="care-list" id="benefitList"></ul>
+    </div>
+
+    <div class="card">
+      <h3>Do This Now — Immediate Care</h3>
+      <ul class="care-list" id="careList"></ul>
+    </div>
+
+    <div class="card">
+      <h3>Suggested Maintenance Cycle</h3>
+      <ul class="timeline" id="timelineList"></ul>
+    </div>
+
+    <div class="card">
+      <h3>Protection Comparison</h3>
+      <table class="cmp-table">
+        <thead><tr><th>Factor</th><th>PPF</th><th>Ceramic</th><th>Graphene</th></tr></thead>
+        <tbody>
+          <tr><td>Stone Chips</td><td class="stars">★★★★★</td><td class="stars">★</td><td class="stars">★</td></tr>
+          <tr><td>Scratch Protection</td><td class="stars">★★★★★</td><td class="stars">★★</td><td class="stars">★★</td></tr>
+          <tr><td>Gloss</td><td class="stars">★★★★</td><td class="stars">★★★★★</td><td class="stars">★★★★★</td></tr>
+          <tr><td>Hydrophobic</td><td class="stars">★★★★</td><td class="stars">★★★★★</td><td class="stars">★★★★★</td></tr>
+          <tr><td>Best For</td><td>Protection</td><td>Gloss</td><td>Balanced</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="4">Illustrative comparison — your studio's exact products and warranties may vary.</td></tr></tfoot>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Digital Assessment vs. Studio Inspection</h3>
+      <table class="split-table">
+        <thead><tr><th>This Digital Assessment</th><th>Studio Inspection</th></tr></thead>
+        <tbody>
+          <tr><td>Vehicle photo</td><td>Professional visual inspection</td></tr>
+          <tr><td>Vehicle profile & answers</td><td>Paint thickness measurement</td></tr>
+          <tr><td>Driving & parking exposure</td><td>Panel-by-panel inspection</td></tr>
+          <tr><td>Protection history you shared</td><td>Previous repaint detection</td></tr>
+          <tr><td>Stated priorities</td><td>Clear-coat & defect assessment</td></tr>
+          <tr><td>Preliminary recommendation</td><td>Final recommendation</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px; color:var(--text-dim); margin-top:14px; line-height:1.6;">Your digital report tells you what may be suitable. Your studio inspection tells you what your car actually needs.</p>
+    </div>
+
+    <div class="inspect-banner">
+      <div class="itag">Important</div>
+      <h3>Want to Know the Actual Condition of Your Paint?</h3>
+      <p>This assessment is a helpful starting point — but a phone camera and a quick questionnaire can't measure paint thickness, existing coating condition, previous repairs or hidden micro-scratches the way a proper paint-inspection meter and a trained eye can.</p>
+      <p>For the real picture, visit the studio. We'll inspect your car panel by panel with the right equipment, and guide you honestly on exactly what it needs — no obligation to book anything.</p>
+      <span class="free-tag">Studio inspection is completely free</span>
+    </div>
+
+    <div class="notice-box">
+      <b>Important Assessment Notice</b>
+      This report is generated from the vehicle information, usage responses and photo you provided. It does not constitute a physical paint inspection or a measurement of paint thickness, clear-coat condition, previous repairs, coating performance or hidden defects. For an accurate assessment, a professional studio inspection using appropriate equipment is recommended.
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-top">
+        <div>
+          <div class="eyebrow2">Free Inspection</div>
+          <div class="ttitle">Book Your Studio Visit</div>
+        </div>
+        <div style="font-size:20px;">🎟</div>
+      </div>
+      <div class="ticket-body">
+        <p>No paid recommendation is required to use this report. Bring your car in and <span id="ctaName"></span> will guide you based on its actual condition, free of charge.</p>
+        <a class="wa-btn" id="waBtn" href="#" target="_blank">WhatsApp My Report</a>
+        <button class="download-btn" id="downloadPdfBtn" onclick="downloadPDF()">⬇ Download Report (PDF)</button>
+        <div class="contact-row">
+          <a id="callLink" href="#">📞 <span id="phoneDisplay"></span></a>
+          <a href="#" onclick="window.print(); return false;">🖨 Print</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row no-export"><button class="btn ghost wide" onclick="restart()">Start a New Assessment</button></div>
+  </section>
+
+  <div class="footer-note">Powered by <b>ScaleBound Media</b> — Paint Protection Toolkit</div>
+</div>
+
+<script>
+/* ============================================================
+   BRANDING
+   ============================================================ */
+function getVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim().replace(/^"|"$/g,''); }
+const STUDIO = {
+  name: getVar('--studio-name'),
+  phoneDisplay: getVar('--studio-phone-display'),
+  whatsapp: getVar('--studio-whatsapp'),
+  toolkit: getVar('--toolkit-name'),
+};
+document.getElementById('hdrName').textContent = STUDIO.name;
+document.getElementById('hdrToolkit').textContent = STUDIO.toolkit;
+document.getElementById('ctaName').textContent = STUDIO.name;
+document.getElementById('phoneDisplay').textContent = STUDIO.phoneDisplay;
+document.getElementById('callLink').href = 'tel:' + STUDIO.phoneDisplay.replace(/\s/g,'');
+
+/* ============================================================
+   VEHICLE DATABASE
+   ============================================================ */
+const VEHICLES = {
+  "Maruti Suzuki": ["Swift","Baleno","Brezza","Fronx","Grand Vitara","WagonR","Alto K10","Dzire","Ertiga","Ciaz","Invicto","Jimny"],
+  "Tata": ["Nexon","Punch","Harrier","Safari","Altroz","Tiago","Tigor","Curvv"],
+  "Mahindra": ["XUV700","Scorpio-N","Thar","XUV300","Bolero","XUV400","BE 6","XEV 9e"],
+  "Hyundai": ["Creta","Venue","i20","Verna","Exter","Alcazar","Tucson","Ioniq 5"],
+  "Kia": ["Seltos","Sonet","Carens","EV6"],
+  "Honda": ["City","Amaze","Elevate"],
+  "Toyota": ["Innova Crysta","Innova Hycross","Fortuner","Glanza","Urban Cruiser Hyryder","Camry","Land Cruiser"],
+  "Volkswagen": ["Virtus","Taigun"],
+  "Skoda": ["Slavia","Kushaq","Kodiaq"],
+  "MG": ["Hector","Astor","ZS EV","Comet"],
+  "Nissan": ["Magnite"],
+  "Renault": ["Kwid","Triber","Kiger"],
+  "Jeep": ["Compass","Meridian"],
+  "Citroen": ["C3","C3 Aircross"],
+  "BMW": ["3 Series","5 Series","X1","X3","X5","7 Series"],
+  "Audi": ["A4","A6","Q3","Q5","Q7"],
+  "Mercedes-Benz": ["C-Class","E-Class","GLA","GLC","S-Class"],
+  "Volvo": ["XC40","XC60","XC90"],
+  "Lexus": ["ES","NX","RX"],
+  "BYD": ["Atto 3","Seal"],
+  "Mini": ["Cooper","Countryman"],
+  "Porsche": ["Macan","Cayenne","911"],
+  "Jaguar": ["F-Pace","XF"],
+  "Land Rover": ["Defender","Range Rover","Discovery Sport"],
+  "Other / Not Listed": []
+};
+const brandSel = document.getElementById('brand');
+Object.keys(VEHICLES).forEach(b=>{ const o=document.createElement('option'); o.value=b; o.textContent=b; brandSel.appendChild(o); });
+function populateModels(){
+  const dl = document.getElementById('modelList'); dl.innerHTML='';
+  (VEHICLES[brandSel.value]||[]).forEach(m=>{ const o=document.createElement('option'); o.value=m; dl.appendChild(o); });
+}
+populateModels();
+const yearSel = document.getElementById('year');
+const thisYear = new Date().getFullYear();
+for(let y=thisYear; y>=thisYear-15; y--){ const o=document.createElement('option'); o.value=y; o.textContent=y; yearSel.appendChild(o); }
+
+/* ============================================================
+   STATE + STEP NAV
+   ============================================================ */
+const state = { photo:null };
+const TOTAL_STEPS = 4;
+
+function buildRail(){
+  const rail = document.getElementById('rail'); rail.innerHTML='';
+  for(let i=1;i<=TOTAL_STEPS;i++){
+    const seg = document.createElement('div'); seg.className='seg'; seg.id='seg'+i; seg.innerHTML='<i></i>'; rail.appendChild(seg);
+  }
+}
+buildRail();
+
+function goTo(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.querySelector('.step[data-step="'+n+'"]').classList.add('active');
+  if(typeof n === 'number'){
+    for(let i=1;i<=TOTAL_STEPS;i++){
+      const seg = document.getElementById('seg'+i); if(!seg) continue;
+      seg.classList.remove('active','done');
+      if(i<n) seg.classList.add('done');
+      if(i===n) seg.classList.add('active');
+    }
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.querySelectorAll('.choice-grid').forEach(grid=>{
+  grid.addEventListener('click', e=>{
+    const el = e.target.closest('.choice'); if(!el) return;
+    grid.querySelectorAll('.choice').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+  });
+});
+function getSelected(id){ const el = document.querySelector('#'+id+' .choice.selected'); return el ? el.dataset.val : null; }
+
+function handlePhoto(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    state.photo = ev.target.result;
+    const img = document.getElementById('photoPreview');
+    img.src = state.photo; img.style.display='block';
+    document.getElementById('photoEmpty').style.display='none';
+    goTo(1);
+  };
+  reader.readAsDataURL(file);
+}
+function skipPhoto(){
+  state.photo = null;
+  document.getElementById('photoPreview').style.display='none';
+  document.getElementById('photoEmpty').style.display='block';
+  goTo(1);
+}
+function retakePhoto(){
+  state.photo = null;
+  document.getElementById('cameraInput').value='';
+  document.getElementById('galleryInput').value='';
+  goTo(0);
+}
+
+function validateStep2(){
+  const name = document.getElementById('custName').value.trim();
+  const model = document.getElementById('model').value.trim();
+  if(!name){ alert('Please enter your name.'); return; }
+  if(!model){ alert('Please enter the vehicle model.'); return; }
+  goTo(3);
+}
+function validateStep3(){
+  if(!getSelected('ownershipAge') || !getSelected('driving') || !getSelected('parking') || !getSelected('existing')){
+    alert('Please answer all four questions before continuing.'); return;
+  }
+  goTo(4);
+}
+function validateStep4(){
+  if(!getSelected('concern') || !getSelected('budget') || !getSelected('ownership')){
+    alert('Please answer all three questions.'); return;
+  }
+  runScanThenReport();
+}
+function restart(){ location.reload(); }
+
+/* ============================================================
+   SCAN TRANSITION — an honest "compiling" moment. This is not
+   analysing the photo pixel-by-pixel; it's running the rule
+   engine against the answers. Copy stays truthful about that.
+   ============================================================ */
+const SCAN_MESSAGES = [
+  'Reviewing vehicle details…',
+  'Assessing driving & parking exposure…',
+  'Evaluating protection priorities…',
+  'Matching available protection options…',
+  'Preparing your assessment…'
+];
+function runScanThenReport(){
+  goTo('scan');
+  const scanPhoto = document.getElementById('scanPhoto');
+  const scanIcon = document.getElementById('scanIcon');
+  if(state.photo){ scanPhoto.src = state.photo; scanPhoto.style.display='block'; scanIcon.style.display='none'; }
+  else { scanPhoto.style.display='none'; scanIcon.style.display='block'; }
+  let i = 0;
+  document.getElementById('scanMsg').textContent = SCAN_MESSAGES[0];
+  const iv = setInterval(()=>{ i=(i+1)%SCAN_MESSAGES.length; document.getElementById('scanMsg').textContent = SCAN_MESSAGES[i]; }, 480);
+  setTimeout(()=>{ clearInterval(iv); document.getElementById('scanMsg').textContent='Your report is ready.'; generateReport(); goTo(5); }, 2400);
+}
+
+/* ============================================================
+   RULE ENGINE — no AI, plain if/else logic. PPF leads as the
+   primary recommendation in most cases (studio's business call);
+   only a pure economy budget or a short-ownership/low-concern
+   profile shifts the primary slot elsewhere.
+   ============================================================ */
+const DEFAULT_CAR_VALUE = 1200000;
+
+function computeReport(){
+  const brand = brandSel.value;
+  const model = document.getElementById('model').value.trim();
+  const year = yearSel.value;
+  const colour = document.getElementById('colour').value;
+  const ownershipAge = getSelected('ownershipAge');
+  const driving = getSelected('driving');
+  const parking = getSelected('parking');
+  const existing = getSelected('existing');
+  const concern = getSelected('concern');
+  const budget = getSelected('budget');
+  const ownership = getSelected('ownership');
+  const ageYears = ({new:0, lt6:0, m6to12:1, y1to3:2, y3plus:5})[ownershipAge] ?? 2;
+  const isDark = (colour === 'Black' || colour === 'Other Dark');
+  const isHighExposureDrive = (driving==='highway' || driving==='hills');
+
+  /* ---- Protection Priority Score (0-100) ---- */
+  let score = 100;
+  if(ageYears <= 0) score -= 0; else if(ageYears <= 1) score -= 5; else if(ageYears <= 3) score -= 15; else score -= 30;
+  if(parking==='mixed') score -= 10; if(parking==='open') score -= 20; if(parking==='basement') score -= 4;
+  if(driving==='mixed') score -= 8; if(isHighExposureDrive) score -= 16;
+  if(existing==='wax') score += 3; if(existing==='ceramic') score += 10; if(existing==='graphene') score += 12; if(existing==='ppf') score += 18;
+  score = Math.max(8, Math.min(98, score));
+
+  /* ---- Qualitative badges ---- */
+  const exposureRisk = (isHighExposureDrive && parking==='open') ? 'Very High' : (isHighExposureDrive || parking==='open') ? 'High' : (driving==='mixed' || parking==='mixed') ? 'Medium' : 'Low';
+  const protectionPriority = existing==='none' ? ((isHighExposureDrive||parking==='open') ? 'Very High' : 'High') : (existing==='wax'||existing==='notsure') ? 'Medium' : 'Low';
+  const maintenanceDemand = (isHighExposureDrive || existing==='none') ? 'High' : (driving==='mixed' || existing==='wax') ? 'Medium' : 'Low';
+
+  /* ---- Driving-profile insights (no photo claims) ---- */
+  const insights = [];
+  if(isHighExposureDrive) insights.push('Highway / hill driving → higher stone-chip exposure on the front end.');
+  if(driving==='mixed') insights.push('Mixed driving → moderate exposure to road debris and grit.');
+  if(parking==='open') insights.push('Open parking → higher UV and weather exposure, faster fading of unprotected paint.');
+  if(parking==='mixed') insights.push('Occasional open parking → some UV and dust exposure to plan around.');
+  if(isDark) insights.push('Dark paint → swirl marks and fine scratches are more visually noticeable.');
+  if(existing==='none') insights.push('No existing protection → fully exposed to everyday contamination and grime.');
+  if(!insights.length) insights.push('Your current profile shows relatively low everyday exposure — good baseline to build protection on.');
+
+  /* ---- Why the car may be losing its shine ---- */
+  const shine = [];
+  shine.push('UV exposure gradually breaks down clear coat, dulling gloss over time' + (parking==='open' ? ' — more relevant given your open parking.' : '.'));
+  shine.push('Embedded contaminants (dust, brake dust, industrial fallout) sit on the surface and scatter light instead of reflecting it cleanly.');
+  shine.push('Automated or careless hand washing creates fine swirl marks that show up as haze in sunlight' + (isDark ? ', especially visible on dark colours like yours.' : '.'));
+  shine.push('Water spots that dry in the sun etch mineral deposits into unprotected paint' + (parking==='open' ? ' — a bigger factor with outdoor parking.' : '.'));
+  if(isHighExposureDrive) shine.push('Road grime and tar from highway driving build up faster than city-only use.');
+
+  return { brand, model, year, colour, ageYears, ownershipAge, driving, parking, existing, concern, budget, ownership,
+    score, exposureRisk, protectionPriority, maintenanceDemand, insights, shine, isDark, isHighExposureDrive,
+    ...deriveRecommendation({colour, ownershipAge, driving, parking, existing, concern, ownership, isDark, isHighExposureDrive}) };
+}
+
+function ageNoteFor(ownershipAge){
+  switch(ownershipAge){
+    case 'new': return 'Your car is brand new — right now is the ideal moment to lock in PPF, before a single chip or scratch happens. Whatever the length of your ownership from here, the paint underneath stays exactly as it is today.';
+    case 'lt6': return 'Your car is still under 6 months old — the paint is as close to factory-fresh as it will ever be. PPF now protects that condition for the rest of the time you own it.';
+    case 'm6to12': return 'About a year in and still early days — applying PPF now still catches the car before most of its wear happens, and protects it for however much longer you plan to drive it.';
+    case 'y1to3': return 'A couple of years in — PPF applied today protects everything from this point forward, for as long as you keep the car.';
+    default: return 'However many years you have left with this car, PPF applied today protects the paint underneath for all of them, starting now.';
+  }
+}
+
+/* ---- Recommendation rules ----
+   PPF leads for almost every car — it is the one service that
+   protects the paint physically, not just cosmetically, and pays
+   off for however long the car is owned. The one deliberate
+   exception is white / very light paint, where PPF film can pick
+   up a visible yellow tinge over the years — coating leads there
+   instead, with PPF still offered as a partial option. */
+function deriveRecommendation({colour, ownershipAge, driving, parking, existing, concern, ownership, isDark, isHighExposureDrive}){
+  const isWhite = (colour === 'White' || colour === 'Other Light');
+  let primary, secondary, budgetOpt, matchTags = [], note;
+
+  if(isWhite){
+    primary = (concern==='gloss') ? REC.graphene : REC.ceramic;
+    secondary = REC.ppfPartial;
+    budgetOpt = REC.teflon;
+    matchTags = ['White / light paint'];
+    note = 'White and other light paint can pick up a faint yellow tinge through PPF film after a few years in Indian sun — so we lead with coating here instead. If maximum chip protection still matters to you, partial PPF on the bumper and bonnet pairs well with it and won\'t show yellowing the way full panels can.';
+  }
+  else{
+    primary = REC.ppfFull;
+    secondary = (concern==='gloss') ? REC.graphene : REC.ceramic;
+    budgetOpt = REC.ppfPartial;
+    if(isDark) matchTags.push('Dark paint');
+    if(isHighExposureDrive) matchTags.push(driving==='hills' ? 'Hill driving' : 'Highway driving');
+    if(parking==='open') matchTags.push('Open parking');
+    if(existing==='none') matchTags.push('No existing protection');
+    if(ownership==='long') matchTags.push('Long-term ownership');
+    if(concern==='resale') matchTags.push('Resale-value priority');
+    if(concern==='protection') matchTags.push('Maximum-protection priority');
+    if(!matchTags.length) matchTags.push('Overall usage profile');
+    note = ageNoteFor(ownershipAge);
+  }
+  return { primary, secondary, budgetOpt, matchTags, note };
+}
+
+const REC = {
+  ppfFull: {
+    name:'Full Body PPF (Paint Protection Film)', tier:'Primary',
+    why:'This is the one decision that protects the car itself, not just its shine. A physical film absorbs stone chips, scratches and swirl marks before they ever touch your factory paint — so years from now, the paint under the film is exactly as it is today.',
+    highlights:[
+      'Factory paint stays untouched for the life of the film — nothing to repaint or recondition later',
+      'Self-heals light scratches and swirl marks with sun or warm water',
+      'A chip-free, original-paint car commands a real premium at resale',
+      '5–10 year lifespan — one job, done properly, instead of repeated top-ups'
+    ],
+    durability:'5–10 yrs', reapply:'Once'
+  },
+  ppfPartial: {
+    name:'Partial PPF (Front bumper, bonnet, mirrors)', tier:'Add-on',
+    why:'The same long-term film protection as full-body PPF, focused on the panels that take almost all the damage — bumper, bonnet, fenders and mirrors — at a fraction of the cost.',
+    highlights:['Covers the zones that absorb 80%+ of everyday stone-chip damage','Same 5–10 year film life as full-body coverage','Easy to extend to full-body later — the technique and film match'],
+    durability:'5–10 yrs', reapply:'Once'
+  },
+  ceramic: {
+    name:'Ceramic Coating', tier:'Alternative',
+    why:'A hard, hydrophobic layer that locks in gloss, resists chemical staining and makes washing dramatically easier. It keeps the surface looking cared-for, though — unlike PPF — it does not stop a stone chip or a deep scratch from reaching the paint underneath.',
+    highlights:['Deep, glossy finish that is far easier to keep clean','Resists bird drop, tree sap and water-spot staining','Good middle ground on cost, but adds no physical impact protection'],
+    durability:'2–5 yrs', reapply:'Every 2–5 yrs'
+  },
+  graphene: {
+    name:'Graphene Coating', tier:'Alternative',
+    why:'A step above ceramic on gloss depth and heat resistance — the closest thing to a showroom finish, held long-term. Like ceramic, it is a chemical and gloss layer, not a physical shield, so it works best paired with PPF on a car you plan to keep.',
+    highlights:['Noticeably deeper gloss than ceramic, especially on dark colours','Better heat resistance — less risk of coating breakdown in Indian summers','Pairs well with PPF underneath for the complete package'],
+    durability:'3–6 yrs', reapply:'Every 3–6 yrs'
+  },
+  teflon: {
+    name:'Teflon Coating / Paint Sealant', tier:'Primary',
+    why:'An affordable entry-level layer that adds gloss and basic protection against everyday grime. It is a sensible starting point, but it wears off in months, not years — worth knowing if you would rather do this once than every season.',
+    highlights:['Lowest-cost way to add real gloss and protection','Good short-term option while you decide on a longer-term coating','Needs reapplying every 6–12 months to keep working'],
+    durability:'6–12 months', reapply:'Every 6–12 months'
+  },
+  wax: {
+    name:'Premium Wax Polish', tier:'Budget Option',
+    why:'The lowest-cost way to add shine and short-term protection. Best as a stop-gap before a proper coating, not a long-term plan on its own.',
+    highlights:['Cheapest option available today','Visible shine improvement immediately','Needs monthly reapplication — the running cost adds up over a year'],
+    durability:'1–3 months', reapply:'Monthly'
+  }
+};
+
+/* Generic, non-monetary "why protection matters" — replaces any resale ₹ prediction */
+const PROTECTION_BENEFITS = [
+  'Preserves your car\'s original factory paint instead of needing repaint or recorrection later',
+  'Reduces day-to-day exposure to road debris, stone chips and contamination',
+  'Makes routine cleaning and maintenance noticeably easier',
+  'Keeps the cosmetic finish looking cared-for over years, not months',
+  'Supports long-term ownership by protecting what\'s underneath, not just the shine on top'
+];
+
+function careActions(r){
+  const tips = [];
+  if(r.existing==='none') tips.push('Get a maintenance wash every 1–2 weeks until protection is applied — bare paint traps grime fastest.');
+  if(r.parking==='open') tips.push('Use a breathable car cover overnight — direct sun and dew are two of the biggest silent damage sources.');
+  if(r.isHighExposureDrive) tips.push('Keep extra following distance from trucks; most bumper and bonnet chips happen within a couple of car-lengths.');
+  if(r.parking==='open' || r.isHighExposureDrive) tips.push('Hand-dry with a microfiber towel after every wash — sun-dried water spots etch into unprotected paint over time.');
+  if(r.existing!=='none') tips.push('Stick to pH-neutral shampoo and a two-bucket wash method to protect your existing coating.');
+  tips.push('Avoid automated brush car washes — they are the single biggest cause of fine swirl marks.');
+  return tips.slice(0,5);
+}
+
+/* ============================================================
+   REPORT RENDER
+   ============================================================ */
+function makeReportId(){
+  const rand = Math.floor(100000 + Math.random()*900000);
+  return 'SPT-' + new Date().getFullYear() + '-' + rand;
+}
+
+function badgeCls(v){ return v.toLowerCase().replace(/\s+/g,''); }
+
+function generateReport(){
+  const r = computeReport();
+  const custName = document.getElementById('custName').value.trim();
+
+  document.getElementById('repName').textContent = custName + "'s " + (r.brand!=='Other / Not Listed' ? r.brand+' ' : '') + r.model;
+  document.getElementById('repDate').textContent = new Date().toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('repId').textContent = 'Assessment ID: ' + makeReportId();
+
+  if(state.photo){
+    document.getElementById('repPhoto').src = state.photo;
+    document.getElementById('photoFrame').style.display = 'block';
+    document.getElementById('photoCaption').style.display = 'block';
+  }
+
+  document.getElementById('summaryGrid').innerHTML = `
+    <div><span>Vehicle</span><b>${r.brand} ${r.model}</b></div>
+    <div><span>Year</span><b>${r.year}</b></div>
+    <div><span>Colour</span><b>${r.colour}</b></div>
+    <div><span>Parking</span><b>${labelize(r.parking)}</b></div>
+    <div><span>Driving pattern</span><b>${labelize(r.driving)}</b></div>
+    <div><span>Existing protection</span><b>${labelize(r.existing)}</b></div>
+  `;
+
+  const pct = r.score/100;
+  document.getElementById('gaugeArc').setAttribute('stroke-dasharray', (283*pct).toFixed(1)+' 283');
+  document.getElementById('scoreNum').textContent = r.score;
+
+  document.getElementById('badgeRow').innerHTML = `
+    <div class="badge-col"><div class="blabel">Exposure Risk</div><div class="bval ${badgeCls(r.exposureRisk)}">${r.exposureRisk}</div></div>
+    <div class="badge-col"><div class="blabel">Protection Priority</div><div class="bval ${badgeCls(r.protectionPriority)}">${r.protectionPriority}</div></div>
+    <div class="badge-col"><div class="blabel">Maintenance Demand</div><div class="bval ${badgeCls(r.maintenanceDemand)}">${r.maintenanceDemand}</div></div>
+  `;
+
+  document.getElementById('insightList').innerHTML = r.insights.map(x=>`<li><span class="arrow">→</span><span>${x}</span></li>`).join('');
+  document.getElementById('shineList').innerHTML = r.shine.map(x=>`<li><span class="arrow">→</span><span>${x}</span></li>`).join('');
+
+  document.getElementById('recList').innerHTML = `
+    ${recCardHtml(r.primary,'primary','Primary', r.matchTags, r.note)}
+    ${recCardHtml(r.secondary,'secondary','Alternative')}
+    ${recCardHtml(r.budgetOpt,'budget','Discuss During Inspection')}
+  `;
+
+  document.getElementById('benefitList').innerHTML = PROTECTION_BENEFITS.map(t=>`<li><span class="tick">✓</span><span>${t}</span></li>`).join('');
+  document.getElementById('careList').innerHTML = careActions(r).map(t=>`<li><span class="tick">✓</span><span>${t}</span></li>`).join('');
+  document.getElementById('timelineList').innerHTML = buildTimeline(r.primary).map(t=>`<li><div class="when">${t.when}</div><div class="what"><b>${t.what}</b><span>${t.detail}</span></div></li>`).join('');
+
+  const msg = `Hi, I just completed the Vehicle Protection Assessment for my ${r.brand} ${r.model} (${r.year}, ${r.colour}). My Protection Priority Score is ${r.score}/100 and the recommended option is: ${r.primary.name}. I'd like to book my free studio inspection.`;
+  document.getElementById('waBtn').href = `https://wa.me/${STUDIO.whatsapp}?text=${encodeURIComponent(msg)}`;
+}
+
+function recCardHtml(rec, cls, tierLabel, matchTags, note){
+  const bullets = (rec.highlights||[]).map(h=>`<li>${h}</li>`).join('');
+  const tags = matchTags && matchTags.length ? `<div class="match-tags">${matchTags.map(t=>`<span>${t}</span>`).join('')}</div>` : '';
+  const noteHtml = note ? `<div class="rec-note"><b>Why now:</b> ${note}</div>` : '';
+  return `
+    <div class="rec-card ${cls}">
+      <div class="rec-tier">${tierLabel}</div>
+      <div class="rec-name">${rec.name}</div>
+      ${tags}
+      <div class="rec-why">${rec.why}</div>
+      ${bullets ? `<ul class="rec-highlights">${bullets}</ul>` : ''}
+      ${noteHtml}
+      <div class="rec-meta"><span>Durability: <b>${rec.durability}</b></span><span>Reapply: <b>${rec.reapply}</b></span></div>
+    </div>
+  `;
+}
+
+function buildTimeline(primary){
+  const base = [
+    {when:'Day 1', what:'Service completed', detail:'Full paint decontamination + application at the studio.'},
+    {when:'30 Days', what:'Cure check', detail:'Avoid automated car washes while the coating fully cures.'},
+  ];
+  if(primary===REC.ppfFull || primary===REC.ppfPartial){
+    base.push({when:'6 Months', what:'Film edge inspection', detail:'Check film edges for lifting, especially near bumper and mirrors.'});
+    base.push({when:'1 Year', what:'Annual inspection', detail:'Free inspection under warranty — polish touch-up if needed.'});
+  } else {
+    base.push({when:'90 Days', what:'Gloss top-up', detail:'Quick maintenance detail to refresh hydrophobic performance.'});
+    base.push({when:'1 Year', what:'Reapplication due', detail:'Time to renew for continued protection and gloss.'});
+  }
+  return base;
+}
+
+function labelize(v){
+  const map = {covered:'Covered', basement:'Basement', mixed:'Mixed', open:'Open parking', city:'City', highway:'Highway', hills:'Hills',
+    none:'None', wax:'Wax / Polish', ceramic:'Ceramic Coating', graphene:'Graphene Coating', ppf:'PPF', notsure:'Not sure'};
+  return map[v] || v;
+}
+
+async function downloadPDF(){
+  const btn = document.getElementById('downloadPdfBtn');
+  const originalText = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Preparing PDF…';
+  document.querySelectorAll('.no-export').forEach(e=> e.dataset.prevDisplay = e.style.display);
+  document.querySelectorAll('.no-export').forEach(e=> e.style.display = 'none');
+  try{
+    const target = document.getElementById('reportStep');
+    const canvas = await html2canvas(target, {backgroundColor:'#0a0b0d', scale:2, useCORS:true});
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p','pt','a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+    let heightLeft = imgHeight; let position = 0;
+    pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight);
+    heightLeft -= pageHeight;
+    while(heightLeft > 0){
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight);
+      heightLeft -= pageHeight;
+    }
+    const custName = (document.getElementById('custName').value.trim() || 'Customer').replace(/\s+/g,'-');
+    pdf.save(`Vehicle-Protection-Assessment-${custName}.pdf`);
+  }catch(err){
+    console.error(err);
+    alert('Could not generate the PDF right now — please use Print instead, or check your internet connection (the PDF library loads from a CDN).');
+  }finally{
+    document.querySelectorAll('.no-export').forEach(e=> e.style.display = e.dataset.prevDisplay || '');
+    btn.disabled = false; btn.textContent = originalText;
+  }
+}
+</script>
+</body>
+</html>
