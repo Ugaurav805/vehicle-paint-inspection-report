@@ -13,13 +13,12 @@
 <style>
 
 :root{
-  --studio-name: "Scalebound Paint Protection Kit";
-  --studio-city: "INDIA";
+  --studio-name: "Burunza Car Detailing Studio";
+  --studio-city: "Almora, Uttarakhand";
   --studio-phone-display: "+91 90000 00000";
   --studio-whatsapp: "919000000000"; /* digits only, country code, no + or spaces */
   --toolkit-name: "Paint Protection Toolkit";
 
-  /* ---- Design tokens ---- */
   --bg: #0a0b0d;
   --panel: #15171b;
   --panel-raised: #1c1f24;
@@ -191,6 +190,16 @@ button.btn.wide{flex:none; width:100%;}
 
 .photo-frame{position:relative; border-radius:var(--radius); overflow:hidden; margin-bottom:6px;}
 .photo-frame img.report-photo{width:100%; display:block;}
+.issue-pin{
+  position:absolute; width:26px; height:26px; border-radius:50%; transform:translate(-50%,-50%);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:700;
+  font-size:12px; color:#0a0b0d; cursor:pointer; border:2px solid rgba(255,255,255,0.7);
+  background:var(--gold); box-shadow:0 0 0 5px rgba(0,0,0,0.35); animation:pinPulse 2.2s ease-in-out infinite;
+}
+@keyframes pinPulse{0%,100%{box-shadow:0 0 0 5px rgba(0,0,0,0.35);} 50%{box-shadow:0 0 0 8px rgba(201,161,91,0.18);}}
+.pin-note{background:var(--panel-raised); border:1px solid var(--hairline); border-radius:var(--radius); padding:11px 14px; font-size:12.5px; margin-top:10px;}
+.pin-note b{font-weight:600; color:var(--gold);}
+.pin-disclaimer{font-size:11px; color:var(--text-dim); margin-top:8px; margin-bottom:16px; line-height:1.55;}
 .photo-caption{font-size:10.5px; color:var(--text-dim); text-align:center; letter-spacing:.04em; margin-bottom:16px;}
 
 .insight-list{list-style:none; display:flex; flex-direction:column; gap:10px;}
@@ -229,21 +238,39 @@ button.btn.wide{flex:none; width:100%;}
 .timeline .what span{font-size:12.5px; color:var(--text-dim);}
 
 /* ---------- Comparison tables ---------- */
-.cmp-table{width:100%; border-collapse:collapse; font-size:12px;}
+.table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+.cmp-table{width:100%; min-width:340px; border-collapse:collapse; font-size:12px;}
 .cmp-table th, .cmp-table td{padding:9px 6px; text-align:center; border-bottom:1px solid var(--hairline);}
 .cmp-table th{font-family:var(--font-mono); font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-dim); font-weight:500;}
 .cmp-table td:first-child, .cmp-table th:first-child{text-align:left; font-weight:500;}
 .cmp-table .stars{color:var(--gold); letter-spacing:1px; font-size:11px;}
 .cmp-table tfoot td{font-size:10.5px; color:var(--text-dim); text-align:left; padding-top:10px; border-bottom:none;}
 
-.split-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+.split-table{width:100%; min-width:320px; border-collapse:collapse; font-size:12.5px;}
 .split-table th{font-family:var(--font-mono); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-dim); text-align:left; padding-bottom:10px; font-weight:500;}
 .split-table th:first-child{color:var(--text-dim);}
 .split-table th:last-child{color:var(--gold);}
 .split-table td{padding:7px 0; border-top:1px solid var(--hairline); vertical-align:top;}
 .split-table td:first-child{color:var(--text-dim); padding-right:12px;}
 
-/* ---------- Big inspection CTA ---------- */
+/* ---------- Resale value illustration ---------- */
+.value-card{border-color:#3a2a2a; background:#1a1414;}
+.value-card h3{color:var(--danger); display:flex; align-items:center; gap:7px;}
+.value-chart{display:flex; align-items:flex-end; gap:14px; height:150px; margin:18px 0 6px;}
+.value-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+.value-bars{display:flex; align-items:flex-end; gap:4px; height:100%; width:100%; justify-content:center;}
+.value-bar{width:16px; border-radius:3px 3px 0 0; transition:height 1s ease; position:relative;}
+.value-bar .pct{position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-family:var(--font-mono); font-size:9.5px; white-space:nowrap;}
+.value-bar.protected{background:var(--ok);}
+.value-bar.unprotected{background:var(--danger);}
+.value-col-lbl{font-size:10px; color:var(--text-dim); margin-top:22px; font-family:var(--font-mono); letter-spacing:.03em; text-transform:uppercase;}
+.value-legend{display:flex; gap:18px; justify-content:center; margin-top:6px; font-size:11px; color:var(--text-dim);}
+.value-legend span{display:flex; align-items:center; gap:6px;}
+.value-legend i{width:9px; height:9px; border-radius:2px; display:inline-block;}
+.value-legend i.protected{background:var(--ok);}
+.value-legend i.unprotected{background:var(--danger);}
+.value-foot{font-size:11px; color:var(--text-dim); margin-top:14px; line-height:1.6;}
+
 .inspect-banner{
   background:linear-gradient(160deg, var(--panel-raised), var(--panel));
   border:1px solid var(--gold); border-radius:var(--radius); padding:24px 20px; margin:22px 0 14px;
@@ -300,6 +327,19 @@ a.wa-btn{
 .footer-note{text-align:center; color:var(--text-dim); font-size:11px; margin-top:36px; letter-spacing:.03em;}
 .footer-note b{color:var(--gold);}
 
+@media (max-width:380px){
+  .wrap{padding:0 14px 70px;}
+  .hero h1{font-size:25px;}
+  .step-title{font-size:22px;}
+  .rec-name{font-size:17px;}
+  .gauge-score .num{font-size:32px;}
+  .value-bar{width:13px;}
+  .value-bar .pct{font-size:8.5px;}
+  .badge-row{gap:6px;}
+  .badge-col{padding:11px 5px;}
+  .badge-col .bval{font-size:13px;}
+}
+
 @media print{
   .rail, .btn-row, header.top, .no-export{display:none !important;}
   body{background:#fff; color:#111;}
@@ -348,7 +388,7 @@ a.wa-btn{
     </div>
   </section>
 
-  <!-- STEP 2 : VEHICLE INFO -->
+ 
   <section class="step" data-step="2">
     <div class="step-label">Step 2 of 4</div>
     <h1 class="step-title">Tell us about your vehicle</h1>
@@ -373,6 +413,15 @@ a.wa-btn{
     <div class="field">
       <label>Year of purchase</label>
       <select id="year"></select>
+    </div>
+    <div class="field">
+      <label>Vehicle Type</label>
+      <select id="vehicleType">
+        <option value="suv">SUV</option>
+        <option value="sedan">Sedan</option>
+        <option value="hatchback">Hatchback</option>
+        <option value="luxury">Luxury / Premium</option>
+      </select>
     </div>
     <div class="field">
       <label>Colour</label>
@@ -496,8 +545,16 @@ a.wa-btn{
 
     <div class="photo-frame" id="photoFrame" style="display:none;">
       <img id="repPhoto" class="report-photo">
+      <div id="issuePins"></div>
     </div>
     <div class="photo-caption" id="photoCaption" style="display:none;">Customer-provided image</div>
+    <div class="pin-note" id="pinNote" style="display:none;"></div>
+    <p class="pin-disclaimer" id="pinDisclaimer" style="display:none;">Markers are typical wear zones for your vehicle type and profile — not an automated scan of this photo. Your studio inspection confirms the real condition, panel by panel.</p>
+
+    <div class="card" id="wearZoneCard" style="display:none;">
+      <h3>Typical Wear Zones for Your Vehicle</h3>
+      <ul class="insight-list" id="wearZoneList"></ul>
+    </div>
 
     <div class="card">
       <h3>Vehicle Summary</h3>
@@ -551,6 +608,7 @@ a.wa-btn{
 
     <div class="card">
       <h3>Protection Comparison</h3>
+      <div class="table-scroll">
       <table class="cmp-table">
         <thead><tr><th>Factor</th><th>PPF</th><th>Ceramic</th><th>Graphene</th></tr></thead>
         <tbody>
@@ -562,10 +620,24 @@ a.wa-btn{
         </tbody>
         <tfoot><tr><td colspan="4">Illustrative comparison — your studio's exact products and warranties may vary.</td></tr></tfoot>
       </table>
+      </div>
+    </div>
+
+    <div class="card value-card">
+      <h3>⚠ How Unprotected Paint Typically Affects Resale Value</h3>
+      <div class="value-chart" id="valueChart"></div>
+      <div class="value-legend">
+        <span><i class="protected"></i> With Protection</span>
+        <span><i class="unprotected"></i> Without Protection</span>
+      </div>
+      <div class="value-foot">
+        Illustrative pattern based on how buyers and appraisers typically value paint condition — <b>not a valuation of your specific car</b>. Unprotected paint fades, chips and swirls silently over time; a buyer checking the car later sees that condition immediately, even if you haven't noticed it day to day.
+      </div>
     </div>
 
     <div class="card">
       <h3>Digital Assessment vs. Studio Inspection</h3>
+      <div class="table-scroll">
       <table class="split-table">
         <thead><tr><th>This Digital Assessment</th><th>Studio Inspection</th></tr></thead>
         <tbody>
@@ -577,6 +649,7 @@ a.wa-btn{
           <tr><td>Preliminary recommendation</td><td>Final recommendation</td></tr>
         </tbody>
       </table>
+      </div>
       <p style="font-size:12px; color:var(--text-dim); margin-top:14px; line-height:1.6;">Your digital report tells you what may be suitable. Your studio inspection tells you what your car actually needs.</p>
     </div>
 
@@ -791,10 +864,41 @@ function runScanThenReport(){
    ============================================================ */
 const DEFAULT_CAR_VALUE = 1200000;
 
+/* ============================================================
+   VEHICLE-TYPE WEAR ZONES — honest, type-based advisory markers.
+   These are NOT derived from the uploaded photo; they're typical
+   trouble spots for the vehicle type the customer selected. Zones
+   are positioned at fixed, generic coordinates so they read sensibly
+   on most side/three-quarter vehicle photos.
+   ============================================================ */
+const TYPE_ZONES = {
+  suv: [
+    {x:50, y:86, label:'Front bumper', tip:'SUVs sit higher, so the front bumper takes the brunt of highway stone chips first.'},
+    {x:50, y:22, label:'Bonnet', tip:'A large, flat bonnet means more UV exposure and a bigger visible surface for swirl marks.'},
+    {x:80, y:60, label:'Wheel arches', tip:'SUV wheel arches kick up more road grit — one of the earliest spots to show paint wear.'},
+  ],
+  sedan: [
+    {x:50, y:88, label:'Front bumper', tip:'Lower ground clearance means the bumper and lower grille catch most stone-chip impact.'},
+    {x:22, y:55, label:'Door edges', tip:'Sedan doors are wide and flat — a common spot for parking-lot dings and swirl marks.'},
+    {x:50, y:20, label:'Bonnet & roof', tip:'Long flat panels show gloss loss and fine scratches more visibly than curved surfaces.'},
+  ],
+  hatchback: [
+    {x:50, y:88, label:'Front bumper', tip:'Compact size means frequent tight parking — bumpers take the most everyday scuffs.'},
+    {x:78, y:52, label:'Rear quarter panel', tip:'Hatchbacks often get clipped here in tight city parking — an easy spot to overlook.'},
+    {x:50, y:22, label:'Roof', tip:'Smaller cars are parked outdoors more often — the roof is usually the most sun-exposed panel.'},
+  ],
+  luxury: [
+    {x:50, y:86, label:'Front bumper', tip:'High-value paint and clear coats show even minor chips clearly — protecting this zone first preserves the look.'},
+    {x:50, y:22, label:'Bonnet', tip:'Deep or dark premium finishes make swirl marks and holograms far more visible under showroom lighting.'},
+    {x:22, y:55, label:'Door edges', tip:'Valet and tight parking are common causes of the first scratches on a new luxury car.'},
+  ],
+};
+
 function computeReport(){
   const brand = brandSel.value;
   const model = document.getElementById('model').value.trim();
   const year = yearSel.value;
+  const vehicleType = document.getElementById('vehicleType').value;
   const colour = document.getElementById('colour').value;
   const ownershipAge = getSelected('ownershipAge');
   const driving = getSelected('driving');
@@ -806,6 +910,7 @@ function computeReport(){
   const ageYears = ({new:0, lt6:0, m6to12:1, y1to3:2, y3plus:5})[ownershipAge] ?? 2;
   const isDark = (colour === 'Black' || colour === 'Other Dark');
   const isHighExposureDrive = (driving==='highway' || driving==='hills');
+  const wearZones = TYPE_ZONES[vehicleType] || TYPE_ZONES.suv;
 
   /* ---- Protection Priority Score (0-100) ---- */
   let score = 100;
@@ -838,7 +943,7 @@ function computeReport(){
   shine.push('Water spots that dry in the sun etch mineral deposits into unprotected paint' + (parking==='open' ? ' — a bigger factor with outdoor parking.' : '.'));
   if(isHighExposureDrive) shine.push('Road grime and tar from highway driving build up faster than city-only use.');
 
-  return { brand, model, year, colour, ageYears, ownershipAge, driving, parking, existing, concern, budget, ownership,
+  return { brand, model, year, colour, vehicleType, wearZones, ageYears, ownershipAge, driving, parking, existing, concern, budget, ownership,
     score, exposureRisk, protectionPriority, maintenanceDemand, insights, shine, isDark, isHighExposureDrive,
     ...deriveRecommendation({colour, ownershipAge, driving, parking, existing, concern, ownership, isDark, isHighExposureDrive}) };
 }
@@ -974,10 +1079,19 @@ function generateReport(){
     document.getElementById('repPhoto').src = state.photo;
     document.getElementById('photoFrame').style.display = 'block';
     document.getElementById('photoCaption').style.display = 'block';
+    document.getElementById('issuePins').innerHTML = r.wearZones.map((z,idx)=>
+      `<div class="issue-pin" style="left:${z.x}%; top:${z.y}%;" onclick="showPin(${idx})">${idx+1}</div>`
+    ).join('');
+    window._wearZones = r.wearZones;
+    if(r.wearZones.length){ showPin(0); document.getElementById('pinDisclaimer').style.display = 'block'; }
+  } else {
+    document.getElementById('wearZoneCard').style.display = 'block';
+    document.getElementById('wearZoneList').innerHTML = r.wearZones.map(z=>`<li><span class="arrow">→</span><span><b>${z.label}:</b> ${z.tip}</span></li>`).join('');
   }
 
   document.getElementById('summaryGrid').innerHTML = `
     <div><span>Vehicle</span><b>${r.brand} ${r.model}</b></div>
+    <div><span>Type</span><b>${labelize(r.vehicleType)}</b></div>
     <div><span>Year</span><b>${r.year}</b></div>
     <div><span>Colour</span><b>${r.colour}</b></div>
     <div><span>Parking</span><b>${labelize(r.parking)}</b></div>
@@ -997,6 +1111,7 @@ function generateReport(){
 
   document.getElementById('insightList').innerHTML = r.insights.map(x=>`<li><span class="arrow">→</span><span>${x}</span></li>`).join('');
   document.getElementById('shineList').innerHTML = r.shine.map(x=>`<li><span class="arrow">→</span><span>${x}</span></li>`).join('');
+  renderValueChart(r.score);
 
   document.getElementById('recList').innerHTML = `
     ${recCardHtml(r.primary,'primary','Primary', r.matchTags, r.note)}
@@ -1046,8 +1161,43 @@ function buildTimeline(primary){
 
 function labelize(v){
   const map = {covered:'Covered', basement:'Basement', mixed:'Mixed', open:'Open parking', city:'City', highway:'Highway', hills:'Hills',
-    none:'None', wax:'Wax / Polish', ceramic:'Ceramic Coating', graphene:'Graphene Coating', ppf:'PPF', notsure:'Not sure'};
+    none:'None', wax:'Wax / Polish', ceramic:'Ceramic Coating', graphene:'Graphene Coating', ppf:'PPF', notsure:'Not sure',
+    suv:'SUV', sedan:'Sedan', hatchback:'Hatchback', luxury:'Luxury / Premium'};
   return map[v] || v;
+}
+
+function showPin(idx){
+  const z = window._wearZones[idx];
+  if(!z) return;
+  document.getElementById('pinNote').style.display = 'block';
+  document.getElementById('pinNote').innerHTML = `<b>${idx+1}. ${z.label}</b> — ${z.tip}`;
+}
+
+/* Illustrative depreciation pattern — generic percentages of original
+   value retained, NOT a personalised valuation. Shifted slightly by
+   the customer's own Protection Priority Score so higher-risk profiles
+   see a slightly wider protected-vs-unprotected gap. */
+function renderValueChart(score){
+  const riskFactor = (100 - score) / 100; // 0 (low risk) to ~0.9 (high risk)
+  const points = [
+    { label:'Today',    protected:100, unprotected:100 },
+    { label:'Year 1',   protected:92,  unprotected: Math.round(88 - riskFactor*8) },
+    { label:'Year 3',   protected:78,  unprotected: Math.round(64 - riskFactor*10) },
+    { label:'Year 5+',  protected:65,  unprotected: Math.round(46 - riskFactor*10) },
+  ];
+  const maxH = 120;
+  document.getElementById('valueChart').innerHTML = points.map(p=>{
+    const hP = Math.round((p.protected/100)*maxH);
+    const hU = Math.round((Math.max(p.unprotected,15)/100)*maxH);
+    return `
+      <div class="value-col">
+        <div class="value-bars">
+          <div class="value-bar protected" style="height:${hP}px;"><span class="pct">${p.protected}%</span></div>
+          <div class="value-bar unprotected" style="height:${hU}px;"><span class="pct">${Math.max(p.unprotected,15)}%</span></div>
+        </div>
+        <div class="value-col-lbl">${p.label}</div>
+      </div>`;
+  }).join('');
 }
 
 async function downloadPDF(){
