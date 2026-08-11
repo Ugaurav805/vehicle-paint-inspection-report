@@ -7,28 +7,29 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
+<!-- Client-side report → PDF export. No backend, no per-download cost. -->
+<!-- Native, vector-based PDF report — built directly with jsPDF, not a screenshot of the dark UI -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 
 :root{
-  --studio-name: "Car Detailing Studio";
+  --studio-name: "Best Detailing Studio";
   --studio-city: "INDIA";
-  --toolkit-name: "Paint Protection Toolkit";
+  --toolkit-name: "ScaleBound Media Paint Protection Toolkit";
 
   /* ---- Design tokens ---- */
-  --bg: #0a0b0d;
-  --panel: #15171b;
-  --panel-raised: #1c1f24;
-  --hairline: #2a2d33;
-  --text: #ece8e0;
-  --text-dim: #8b8d93;
-  --gold: #c9a15b;
-  --gold-soft: #e4c988;
-  --steel: #6a93ac;
-  --danger: #b5563f;
-  --ok: #6f9c76;
+  --bg: #f5f1e8;
+  --panel: #ffffff;
+  --panel-raised: #fbf8f1;
+  --hairline: #ddd4c3;
+  --text: #24221e;
+  --text-dim: #70695e;
+  --gold: #b78635;
+  --gold-soft: #d8b56a;
+  --steel: #557b90;
+  --danger: #b04f3e;
+  --ok: #4f7c59;
   --radius: 2px;
   --font-display: 'Oswald', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -49,8 +50,8 @@ body::before{
   content:"";
   position:fixed; inset:0;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,161,91,0.08), transparent),
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(183,134,53,0.10), transparent),
+    linear-gradient(180deg, rgba(255,255,255,0.72), rgba(245,241,232,0.98));
   pointer-events:none;
   z-index:0;
 }
@@ -165,7 +166,7 @@ button.btn.wide{flex:none; width:100%;}
 .value-chart{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
 .value-row{display:grid;grid-template-columns:54px 1fr 52px;align-items:center;gap:10px;}
 .value-year{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);}
-.value-track{height:12px;background:#25282d;border-radius:2px;overflow:hidden;border:1px solid var(--hairline);}
+.value-track{height:12px;background:#ebe5d9;border-radius:2px;overflow:hidden;border:1px solid var(--hairline);}
 .value-fill{height:100%;width:0;background:linear-gradient(90deg,var(--steel),var(--gold));transition:width .7s ease;}
 .value-pct{font-family:var(--font-mono);font-size:11px;text-align:right;color:var(--text);}
 .value-note{font-size:11px;line-height:1.6;color:var(--text-dim);margin-top:14px;}
@@ -289,7 +290,7 @@ button.btn.wide{flex:none; width:100%;}
 .ticket-body p{font-size:12.5px; color:var(--text-dim); margin-bottom:14px;}
 a.wa-btn{
   display:inline-flex; align-items:center; gap:10px; justify-content:center;
-  background:#25D366; color:#0a0b0d; font-family:var(--font-display); font-weight:600;
+  background:#25D366; color:#10351e; font-family:var(--font-display); font-weight:600;
   text-transform:uppercase; letter-spacing:.05em; font-size:13.5px; padding:15px 26px;
   border-radius:var(--radius); text-decoration:none; width:100%;
 }
@@ -308,7 +309,7 @@ a.wa-btn{
   position:relative; border:1px solid var(--hairline); border-radius:var(--radius); overflow:hidden;
   height:230px; background:var(--panel); display:flex; align-items:center; justify-content:center; margin-top:60px;
 }
-.scan-frame img{width:100%; height:100%; object-fit:cover; filter:saturate(0.55) brightness(0.7);}
+.scan-frame img{width:100%; height:100%; object-fit:cover; filter:saturate(0.9) brightness(0.96);}
 .scan-frame .scan-icon{font-size:38px; color:var(--text-dim);}
 .scanline{
   position:absolute; left:0; right:0; height:18%; top:-18%;
@@ -334,276 +335,28 @@ a.wa-btn{
   .badge-col .bval{font-size:13px;}
 }
 
-
-/* ============================================================
-   REPORT THEME — LIGHT, PRINT-FIRST AUTOMOTIVE REPORT
-   The assessment screen intentionally uses a separate visual
-   system from the dark questionnaire UI. This prevents the
-   browser print renderer from producing black cards + black text.
-   ============================================================ */
-#reportStep{
-  --bg:#f7f5ef;
-  --panel:#ffffff;
-  --panel-raised:#fbfaf7;
-  --hairline:#d9dde3;
-  --text:#18202a;
-  --text-dim:#5f6873;
-  --gold:#a87524;
-  --gold-soft:#d3aa67;
-  --steel:#3f6f8d;
-  --danger:#b5483d;
-  --ok:#2f7b58;
-  background:#f7f5ef;
-  color:#18202a;
-  border:1px solid #e1ddd3;
-  border-radius:6px;
-  padding:28px;
-  box-shadow:0 8px 30px rgba(24,32,42,.07);
-}
-#reportStep .doc-header{
-  border-bottom:2px solid #cfd4da;
-  padding-bottom:18px;
-}
-#reportStep .doc-header-text .eyebrow,
-#reportStep .eyebrow,
-#reportStep .step-label{color:#a87524;}
-#reportStep .doc-header-text h1{color:#18202a;}
-#reportStep .doc-header-text .sub,
-#reportStep .doc-header-text .rid{color:#68727d;}
-#reportStep .card{
-  background:#fff;
-  border:1px solid #d9dde3;
-  box-shadow:0 2px 8px rgba(24,32,42,.035);
-}
-#reportStep .card h3{color:#46515d;}
-#reportStep .summary-grid div span,
-#reportStep .insight-foot,
-#reportStep .value-note,
-#reportStep .rec-why,
-#reportStep .rec-meta,
-#reportStep .timeline .what span,
-#reportStep .cmp-table th,
-#reportStep .split-table th,
-#reportStep .notice-box,
-#reportStep .ticket-body p,
-#reportStep .contact-row,
-#reportStep .contact-row a,
-#reportStep .score-note{color:#5f6873;}
-#reportStep .summary-grid div b,
-#reportStep .rec-highlights li,
-#reportStep .rec-meta b,
-#reportStep .value-pct,
-#reportStep .timeline .what b,
-#reportStep .insight-list li,
-#reportStep .score-note b{color:#18202a;}
-#reportStep .insight-list li .arrow,
-#reportStep .rec-highlights li::before,
-#reportStep .match-tags span::before,
-#reportStep .timeline .when,
-#reportStep .cmp-table .stars{color:#a87524;}
-#reportStep .badge-col{
-  background:#fff;
-  border-color:#d9dde3;
-}
-#reportStep .badge-col .blabel{color:#68727d;}
-#reportStep .bval.high,#reportStep .bval.veryhigh{color:#b5483d;}
-#reportStep .bval.medium{color:#a87524;}
-#reportStep .bval.low{color:#2f7b58;}
-#reportStep .status-banner.good{
-  background:#edf7f1;
-  border-color:#8ac3a5;
-}
-#reportStep .status-banner.urgent{
-  background:#fff7e8;
-  border-color:#d3aa67;
-}
-#reportStep .status-banner.risk{
-  background:#fff0ee;
-  border-color:#d28a81;
-}
-#reportStep .status-banner.good b{color:#2f7b58;}
-#reportStep .status-banner.urgent b{color:#a87524;}
-#reportStep .status-banner.risk b{color:#b5483d;}
-#reportStep .value-track{
-  background:#e7eaee;
-  border-color:#d0d5db;
-}
-#reportStep .value-fill{background:linear-gradient(90deg,#4b7894,#b7842f);}
-#reportStep .value-callout{
-  background:#f7f8fa;
-  border-color:#d9dde3;
-}
-#reportStep .value-callout b{color:#a87524;}
-#reportStep .rec-card{
-  background:#fbfaf7;
-  border-color:#d9dde3;
-}
-#reportStep .rec-card.primary{
-  background:#fffaf0;
-  border-color:#c89b4d;
-  box-shadow:inset 4px 0 0 #a87524;
-}
-#reportStep .rec-tier{
-  background:#fbfaf7;
-  color:#a87524;
-}
-#reportStep .rec-card.secondary .rec-tier{color:#3f6f8d;}
-#reportStep .rec-card.budget .rec-tier{color:#68727d;}
-#reportStep .match-tags span{
-  background:#f1f4f7;
-  border-color:#d9dde3;
-  color:#53606d;
-}
-#reportStep .rec-note{
-  background:#fff8e9;
-  border-color:#d3aa67;
-  color:#35404c;
-}
-#reportStep .rec-note b{color:#a87524;}
-#reportStep .care-list li,
-#reportStep .timeline li,
-#reportStep .cmp-table th,
-#reportStep .cmp-table td,
-#reportStep .split-table td{border-color:#e0e3e7;}
-#reportStep .care-list li .tick{color:#2f7b58;}
-#reportStep .split-table td:first-child{color:#5f6873;}
-#reportStep .split-table th:last-child{color:#a87524;}
-#reportStep .inspect-banner{
-  background:linear-gradient(135deg,#fffaf0,#f8fbfd);
-  border-color:#c89b4d;
-}
-#reportStep .inspect-banner .itag{color:#a87524;}
-#reportStep .inspect-banner h3{color:#18202a;}
-#reportStep .inspect-banner p{color:#4f5964;}
-#reportStep .inspect-banner .free-tag{
-  color:#2f7b58;
-  border-color:#79ad92;
-  background:#edf7f1;
-}
-#reportStep .notice-box{
-  background:#f7f8fa;
-  border-color:#d9dde3;
-  color:#5f6873;
-}
-#reportStep .notice-box b{color:#18202a;}
-#reportStep .ticket{
-  background:#fff;
-  border-color:#cfd5dc;
-  box-shadow:0 3px 10px rgba(24,32,42,.04);
-}
-#reportStep .ticket-top{border-color:#d9dde3;}
-#reportStep .ticket-top .eyebrow2{color:#3f6f8d;}
-#reportStep .ticket-top .ttitle{color:#18202a;}
-#reportStep .download-btn{
-  background:#fff;
-  border-color:#aeb6bf;
-  color:#18202a;
-}
-#reportStep .download-btn:hover{border-color:#a87524;}
-#reportStep .footer-note{color:#68727d;}
-#reportStep .footer-note b{color:#a87524;}
-#reportStep .report-photo-thumb{
-  border-color:#cfd5dc;
-  background:#fff;
-}
-#reportStep .gauge-wrap svg path:first-child{stroke:#dfe3e7 !important;}
-#reportStep .gauge-wrap svg #gaugeArc{stroke:#b7842f !important;}
-#reportStep .gauge-score .num{color:#b7842f;}
-#reportStep .gauge-score .lbl{color:#68727d;}
-
 @page{
   size:A4;
   margin:10mm;
 }
 
 @media print{
-  @page{
-    size:A4 portrait;
-    margin:9mm;
-  }
   html, body{
-    background:#ffffff !important;
-    color:#18202a !important;
+    background:#fff !important;
+    color:#111 !important;
     -webkit-print-color-adjust:exact !important;
     print-color-adjust:exact !important;
   }
-  body::before{display:none !important;}
   .rail, .btn-row, header.top, .no-export{display:none !important;}
   .wrap{max-width:none !important; padding:0 !important; margin:0 !important;}
   .step{display:none !important;}
   .step.active{display:block !important;}
-
-  #reportStep{
-    display:block !important;
-    background:#f7f5ef !important;
-    color:#18202a !important;
-    border:1px solid #e1ddd3 !important;
-    box-shadow: none !important;
-    padding:18px !important;
-  }
-  #reportStep .card,
-  #reportStep .badge-col,
-  #reportStep .ticket,
-  #reportStep .notice-box{
+  .card, .report-card, .ticket, .inspect-banner, .notice-box{
     break-inside:avoid;
     page-break-inside:avoid;
   }
-  #reportStep .card{
-    background:#ffffff !important;
-    color:#18202a !important;
-    border-color:#d9dde3 !important;
-    box-shadow: none !important;
-  }
-  #reportStep .rec-card{
-    background:#fbfaf7 !important;
-    color:#18202a !important;
-  }
-  #reportStep .rec-card.primary{
-    background:#fffaf0 !important;
-  }
-  #reportStep .inspect-banner{
-    background:#fffaf0 !important;
-    color:#18202a !important;
-  }
-  #reportStep .ticket{
-    background:#ffffff !important;
-  }
-  #reportStep .notice-box{
-    background:#f7f8fa !important;
-  }
-  #reportStep .value-track{
-    background:#e7eaee !important;
-  }
-  #reportStep .value-fill{
-    background:#b7842f !important;
-  }
-  #reportStep .summary-grid div b,
-  #reportStep .rec-highlights li,
-  #reportStep .rec-meta b,
-  #reportStep .value-pct,
-  #reportStep .timeline .what b,
-  #reportStep .insight-list li,
-  #reportStep .score-note b,
-  #reportStep .inspect-banner h3,
-  #reportStep .notice-box b,
-  #reportStep .ticket-top .ttitle{
-    color:#18202a !important;
-  }
-  #reportStep .summary-grid div span,
-  #reportStep .insight-foot,
-  #reportStep .value-note,
-  #reportStep .rec-why,
-  #reportStep .rec-meta,
-  #reportStep .timeline .what span,
-  #reportStep .notice-box,
-  #reportStep .ticket-body p,
-  #reportStep .score-note{
-    color:#5f6873 !important;
-  }
   img{max-width:100% !important;}
   a{color:inherit !important; text-decoration:none !important;}
-  .table-scroll{overflow:visible !important;}
-  .cmp-table,.split-table{min-width:0 !important;}
 }
 </style>
 </head>
@@ -615,7 +368,7 @@ a.wa-btn{
       <div class="name"><span>▮</span> <span id="hdrName"></span></div>
       <div class="toolkit" id="hdrToolkit"></div>
     </div>
-    <svg class="gauge-mini" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#2a2d33" stroke-width="2"/><circle cx="20" cy="20" r="17" fill="none" stroke="#c9a15b" stroke-width="2" stroke-dasharray="70 40" stroke-linecap="round" transform="rotate(-90 20 20)"/></svg>
+    <svg class="gauge-mini" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#d8d0c2" stroke-width="2"/><circle cx="20" cy="20" r="17" fill="none" stroke="#b78635" stroke-width="2" stroke-dasharray="70 40" stroke-linecap="round" transform="rotate(-90 20 20)"/></svg>
   </header>
 
   <div class="rail" id="rail"></div>
@@ -828,8 +581,8 @@ a.wa-btn{
 
     <div class="gauge-wrap">
       <svg width="220" height="130" viewBox="0 0 220 130">
-        <path d="M20,110 A90,90 0 0,1 200,110" fill="none" stroke="#2a2d33" stroke-width="14" stroke-linecap="round"/>
-        <path id="gaugeArc" d="M20,110 A90,90 0 0,1 200,110" fill="none" stroke="#c9a15b" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 283"/>
+        <path d="M20,110 A90,90 0 0,1 200,110" fill="none" stroke="#d8d0c2" stroke-width="14" stroke-linecap="round"/>
+        <path id="gaugeArc" d="M20,110 A90,90 0 0,1 200,110" fill="none" stroke="#b78635" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 283"/>
       </svg>
       <div class="gauge-score">
         <div class="num" id="scoreNum">--</div>
@@ -1594,14 +1347,18 @@ function statusMessage(r){
    ============================================================ */
 const PDF = {
   margin: 42,
-  ink:     [26, 26, 26],
-  grey:    [95, 95, 95],
-  dim:     [150, 150, 150],
-  gold:    [140, 104, 44],
-  line:    [222, 218, 210],
-  ok:      [58, 110, 66],
-  danger:  [160, 62, 45],
-  panel:   [247, 245, 240],
+  paper:   [250, 248, 243],
+  ink:     [34, 32, 28],
+  grey:    [91, 86, 77],
+  dim:     [122, 114, 101],
+  gold:    [177, 132, 52],
+  goldSoft:[239, 228, 202],
+  steel:   [74, 111, 129],
+  line:    [220, 211, 196],
+  ok:      [70, 118, 81],
+  danger:  [174, 73, 57],
+  panel:   [247, 243, 234],
+  white:   [255, 255, 255],
 };
 
 function pdfLoadImage(dataUrl){
@@ -1675,14 +1432,21 @@ async function buildAssessmentPDF(){
   const cw = pageW - PDF.margin*2;
   const photoDims = await pdfLoadImage(meta.photo);
 
+  // Start with a warm paper canvas so the generated PDF is never dependent on
+  // browser print settings or a dark website theme.
+  pdf.setFillColor(...PDF.paper);
+  pdf.rect(0, 0, pageW, pageH, 'F');
+
   /* ---------- PAGE 1 — COVER ---------- */
-  pdf.setFillColor(...PDF.ink); pdf.rect(0,0,pageW,120,'F');
-  pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(255,255,255);
+  pdf.setFillColor(...PDF.paper); pdf.rect(0,0,pageW,pageH,'F');
+  pdf.setFillColor(...PDF.goldSoft); pdf.rect(0,0,pageW,10,'F');
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(...PDF.ink);
   pdf.text(meta.presentedBy.toUpperCase(), PDF.margin, 46);
   pdf.setFont('helvetica','normal'); pdf.setFontSize(9); pdf.setTextColor(...PDF.gold);
   pdf.text(STUDIO.toolkit.toUpperCase(), PDF.margin, 62);
-  pdf.setFont('helvetica','bold'); pdf.setFontSize(20); pdf.setTextColor(255,255,255);
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(20); pdf.setTextColor(...PDF.ink);
   pdf.text('Vehicle Protection Assessment', PDF.margin, 96);
+  pdf.setDrawColor(...PDF.gold); pdf.setLineWidth(1.2); pdf.line(PDF.margin, 108, pageW-PDF.margin, 108);
 
   let y = 160;
   const leftW = photoDims ? cw*0.52 : cw;
@@ -1717,10 +1481,10 @@ async function buildAssessmentPDF(){
   }
 
   const takeawayY = pageH - 150;
-  pdf.setFillColor(...PDF.ink); pdf.rect(PDF.margin, takeawayY, cw, 44, 'F');
+  pdf.setFillColor(...PDF.goldSoft); pdf.setDrawColor(...PDF.gold); pdf.roundedRect(PDF.margin, takeawayY, cw, 44, 3, 3, 'FD');
   pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(...PDF.gold);
   pdf.text('RECOMMENDED FOR THIS VEHICLE', PDF.margin+14, takeawayY+17);
-  pdf.setFont('helvetica','bold'); pdf.setFontSize(15); pdf.setTextColor(255,255,255);
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(15); pdf.setTextColor(...PDF.ink);
   pdf.text(r.primary.name + '  ·  Visit Priority: ' + r.visitPriority, PDF.margin+14, takeawayY+33);
 
   const noticeY = pageH - 90;
@@ -1731,6 +1495,7 @@ async function buildAssessmentPDF(){
 
   /* ---------- PAGE 2 — VEHICLE PROFILE ---------- */
   pdf.addPage();
+  pdf.setFillColor(...PDF.paper); pdf.rect(0, 0, pageW, pageH, 'F');
   y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Your Vehicle Profile');
   pdf.autoTable({
     startY: y, margin:{left:PDF.margin, right:PDF.margin}, tableWidth:cw,
@@ -1750,6 +1515,7 @@ async function buildAssessmentPDF(){
 
   /* ---------- PAGE 3 — PROTECTION PROFILE ---------- */
   pdf.addPage();
+  pdf.setFillColor(...PDF.paper); pdf.rect(0, 0, pageW, pageH, 'F');
   y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Protection Profile');
 
   // Big skimmable headline — the one-line takeaway, read this and you have the gist
@@ -1776,6 +1542,7 @@ async function buildAssessmentPDF(){
 
   /* ---------- PAGE 4 — PROFILE INSIGHTS ---------- */
   pdf.addPage();
+  pdf.setFillColor(...PDF.paper); pdf.rect(0, 0, pageW, pageH, 'F');
   y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'What Your Profile Suggests');
   y = pdfParagraph(pdf, 'Profile-based insight — not a visual diagnosis of your photo.', PDF.margin, y, cw, 8.5, PDF.dim, 11);
   y += 10;
@@ -1805,6 +1572,7 @@ async function buildAssessmentPDF(){
 
   /* ---------- PAGE 5 — RECOMMENDATION ---------- */
   pdf.addPage();
+  pdf.setFillColor(...PDF.paper); pdf.rect(0, 0, pageW, pageH, 'F');
   y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Your Protection Recommendation');
   pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.gold);
   pdf.text('PRIMARY RECOMMENDATION', PDF.margin, y); y+=24;
@@ -1843,6 +1611,7 @@ async function buildAssessmentPDF(){
 
   /* ---------- PAGE 6 — COMPARISON ---------- */
   pdf.addPage();
+  pdf.setFillColor(...PDF.paper); pdf.rect(0, 0, pageW, pageH, 'F');
   y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Protection Comparison');
   pdf.autoTable({
     startY:y, margin:{left:PDF.margin,right:PDF.margin}, tableWidth:cw,
@@ -1863,6 +1632,7 @@ async function buildAssessmentPDF(){
 
   /* ---------- PAGE 7 — DIGITAL VS STUDIO + VISIT CTA ---------- */
   pdf.addPage();
+  pdf.setFillColor(...PDF.paper); pdf.rect(0, 0, pageW, pageH, 'F');
   y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Digital Assessment vs. Studio Inspection');
   pdf.autoTable({
     startY:y, margin:{left:PDF.margin,right:PDF.margin}, tableWidth:cw,
@@ -1884,7 +1654,7 @@ async function buildAssessmentPDF(){
   pdf.text('Online assessment gives you direction.', PDF.margin, y); y+=17;
   pdf.text('Studio inspection gives you certainty.', PDF.margin, y); y+=26;
 
-  pdf.setFillColor(...PDF.panel); pdf.roundedRect(PDF.margin, y, cw, 108, 3, 3, 'F');
+  pdf.setFillColor(...PDF.goldSoft); pdf.setDrawColor(...PDF.gold); pdf.roundedRect(PDF.margin, y, cw, 108, 3, 3, 'FD');
   pdf.setFont('helvetica','bold'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.gold);
   pdf.text('YOUR NEXT STEP · COMPLIMENTARY STUDIO INSPECTION', PDF.margin+16, y+22);
   const ctaText = 'Bring your car to the studio and we will inspect it panel by panel using proper equipment and trained visual assessment, then guide you honestly on what it actually needs. No obligation to purchase.';
@@ -1894,6 +1664,7 @@ async function buildAssessmentPDF(){
 
   /* ---------- PAGE 8 — NOTICE + CONTACT ---------- */
   pdf.addPage();
+  pdf.setFillColor(...PDF.paper); pdf.rect(0, 0, pageW, pageH, 'F');
   y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Assessment Notice & Contact');
   pdf.setFillColor(...PDF.panel); pdf.rect(PDF.margin, y, cw, 118, 'F');
   pdf.setFont('helvetica','bold'); pdf.setFontSize(9); pdf.setTextColor(...PDF.ink);
@@ -1940,9 +1711,22 @@ function statusMessagePlain(r){
   return { title:'Moderate exposure', tone:'urgent', body:'The car is holding up reasonably well, but a few exposure factors in this profile mean protection now will prevent avoidable wear down the line.' };
 }
 
-function downloadPDF(){
-  trackEvent('report_downloaded');
-  window.print();
+async function downloadPDF(){
+  const btn = document.getElementById('downloadPdfBtn');
+  const originalText = btn ? btn.textContent : '';
+  try{
+    if(btn){ btn.disabled = true; btn.textContent = 'Preparing High-Quality PDF…'; }
+    trackEvent('report_downloaded');
+    const pdf = await buildAssessmentPDF();
+    const name = (window._reportMeta?.custName || 'Customer').trim().replace(/[^a-z0-9]+/gi,'-').replace(/^-+|-+$/g,'') || 'Customer';
+    const id = window._reportMeta?.assessmentId || 'Assessment';
+    pdf.save(`ScaleBound-Paint-Protection-Assessment-${name}-${id}.pdf`);
+  }catch(err){
+    console.error('PDF generation failed:', err);
+    alert('Could not generate the PDF. Please make sure you are connected to the internet so the PDF libraries can load, then try again.');
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = originalText; }
+  }
 }
 </script>
 </body>
