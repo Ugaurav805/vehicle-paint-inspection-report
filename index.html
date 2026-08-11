@@ -7,8 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<!-- Client-side report → PDF export. No backend, no per-download cost. -->
-<!-- Native, vector-based PDF report — built directly with jsPDF, not a screenshot of the dark UI -->
+<!-- Client-side report. Print / Save as PDF uses the browser native print renderer for crisp, print-first output. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
@@ -20,7 +19,7 @@
    ============================================================ */
 :root{
   --studio-name: "Car Detailing Studio";
-  --studio-city: "India";
+  --studio-city: "INDIA";
   --studio-phone-display: "+91 90000 00000";
   --studio-whatsapp: "919000000000"; /* digits only, country code, no + or spaces */
   --toolkit-name: "Paint Protection Toolkit";
@@ -342,28 +341,277 @@ a.wa-btn{
   .badge-col .bval{font-size:13px;}
 }
 
+
+/* ============================================================
+   REPORT THEME — LIGHT, PRINT-FIRST AUTOMOTIVE REPORT
+   The assessment screen intentionally uses a separate visual
+   system from the dark questionnaire UI. This prevents the
+   browser print renderer from producing black cards + black text.
+   ============================================================ */
+#reportStep{
+  --bg:#f7f5ef;
+  --panel:#ffffff;
+  --panel-raised:#fbfaf7;
+  --hairline:#d9dde3;
+  --text:#18202a;
+  --text-dim:#5f6873;
+  --gold:#a87524;
+  --gold-soft:#d3aa67;
+  --steel:#3f6f8d;
+  --danger:#b5483d;
+  --ok:#2f7b58;
+  background:#f7f5ef;
+  color:#18202a;
+  border:1px solid #e1ddd3;
+  border-radius:6px;
+  padding:28px;
+  box-shadow:0 8px 30px rgba(24,32,42,.07);
+}
+#reportStep .doc-header{
+  border-bottom:2px solid #cfd4da;
+  padding-bottom:18px;
+}
+#reportStep .doc-header-text .eyebrow,
+#reportStep .eyebrow,
+#reportStep .step-label{color:#a87524;}
+#reportStep .doc-header-text h1{color:#18202a;}
+#reportStep .doc-header-text .sub,
+#reportStep .doc-header-text .rid{color:#68727d;}
+#reportStep .card{
+  background:#fff;
+  border:1px solid #d9dde3;
+  box-shadow:0 2px 8px rgba(24,32,42,.035);
+}
+#reportStep .card h3{color:#46515d;}
+#reportStep .summary-grid div span,
+#reportStep .insight-foot,
+#reportStep .value-note,
+#reportStep .rec-why,
+#reportStep .rec-meta,
+#reportStep .timeline .what span,
+#reportStep .cmp-table th,
+#reportStep .split-table th,
+#reportStep .notice-box,
+#reportStep .ticket-body p,
+#reportStep .contact-row,
+#reportStep .contact-row a,
+#reportStep .score-note{color:#5f6873;}
+#reportStep .summary-grid div b,
+#reportStep .rec-highlights li,
+#reportStep .rec-meta b,
+#reportStep .value-pct,
+#reportStep .timeline .what b,
+#reportStep .insight-list li,
+#reportStep .score-note b{color:#18202a;}
+#reportStep .insight-list li .arrow,
+#reportStep .rec-highlights li::before,
+#reportStep .match-tags span::before,
+#reportStep .timeline .when,
+#reportStep .cmp-table .stars{color:#a87524;}
+#reportStep .badge-col{
+  background:#fff;
+  border-color:#d9dde3;
+}
+#reportStep .badge-col .blabel{color:#68727d;}
+#reportStep .bval.high,#reportStep .bval.veryhigh{color:#b5483d;}
+#reportStep .bval.medium{color:#a87524;}
+#reportStep .bval.low{color:#2f7b58;}
+#reportStep .status-banner.good{
+  background:#edf7f1;
+  border-color:#8ac3a5;
+}
+#reportStep .status-banner.urgent{
+  background:#fff7e8;
+  border-color:#d3aa67;
+}
+#reportStep .status-banner.risk{
+  background:#fff0ee;
+  border-color:#d28a81;
+}
+#reportStep .status-banner.good b{color:#2f7b58;}
+#reportStep .status-banner.urgent b{color:#a87524;}
+#reportStep .status-banner.risk b{color:#b5483d;}
+#reportStep .value-track{
+  background:#e7eaee;
+  border-color:#d0d5db;
+}
+#reportStep .value-fill{background:linear-gradient(90deg,#4b7894,#b7842f);}
+#reportStep .value-callout{
+  background:#f7f8fa;
+  border-color:#d9dde3;
+}
+#reportStep .value-callout b{color:#a87524;}
+#reportStep .rec-card{
+  background:#fbfaf7;
+  border-color:#d9dde3;
+}
+#reportStep .rec-card.primary{
+  background:#fffaf0;
+  border-color:#c89b4d;
+  box-shadow:inset 4px 0 0 #a87524;
+}
+#reportStep .rec-tier{
+  background:#fbfaf7;
+  color:#a87524;
+}
+#reportStep .rec-card.secondary .rec-tier{color:#3f6f8d;}
+#reportStep .rec-card.budget .rec-tier{color:#68727d;}
+#reportStep .match-tags span{
+  background:#f1f4f7;
+  border-color:#d9dde3;
+  color:#53606d;
+}
+#reportStep .rec-note{
+  background:#fff8e9;
+  border-color:#d3aa67;
+  color:#35404c;
+}
+#reportStep .rec-note b{color:#a87524;}
+#reportStep .care-list li,
+#reportStep .timeline li,
+#reportStep .cmp-table th,
+#reportStep .cmp-table td,
+#reportStep .split-table td{border-color:#e0e3e7;}
+#reportStep .care-list li .tick{color:#2f7b58;}
+#reportStep .split-table td:first-child{color:#5f6873;}
+#reportStep .split-table th:last-child{color:#a87524;}
+#reportStep .inspect-banner{
+  background:linear-gradient(135deg,#fffaf0,#f8fbfd);
+  border-color:#c89b4d;
+}
+#reportStep .inspect-banner .itag{color:#a87524;}
+#reportStep .inspect-banner h3{color:#18202a;}
+#reportStep .inspect-banner p{color:#4f5964;}
+#reportStep .inspect-banner .free-tag{
+  color:#2f7b58;
+  border-color:#79ad92;
+  background:#edf7f1;
+}
+#reportStep .notice-box{
+  background:#f7f8fa;
+  border-color:#d9dde3;
+  color:#5f6873;
+}
+#reportStep .notice-box b{color:#18202a;}
+#reportStep .ticket{
+  background:#fff;
+  border-color:#cfd5dc;
+  box-shadow:0 3px 10px rgba(24,32,42,.04);
+}
+#reportStep .ticket-top{border-color:#d9dde3;}
+#reportStep .ticket-top .eyebrow2{color:#3f6f8d;}
+#reportStep .ticket-top .ttitle{color:#18202a;}
+#reportStep .download-btn{
+  background:#fff;
+  border-color:#aeb6bf;
+  color:#18202a;
+}
+#reportStep .download-btn:hover{border-color:#a87524;}
+#reportStep .footer-note{color:#68727d;}
+#reportStep .footer-note b{color:#a87524;}
+#reportStep .report-photo-thumb{
+  border-color:#cfd5dc;
+  background:#fff;
+}
+#reportStep .gauge-wrap svg path:first-child{stroke:#dfe3e7 !important;}
+#reportStep .gauge-wrap svg #gaugeArc{stroke:#b7842f !important;}
+#reportStep .gauge-score .num{color:#b7842f;}
+#reportStep .gauge-score .lbl{color:#68727d;}
+
 @page{
   size:A4;
   margin:10mm;
 }
 
 @media print{
+  @page{
+    size:A4 portrait;
+    margin:9mm;
+  }
   html, body{
-    background:#fff !important;
-    color:#111 !important;
+    background:#ffffff !important;
+    color:#18202a !important;
     -webkit-print-color-adjust:exact !important;
     print-color-adjust:exact !important;
   }
+  body::before{display:none !important;}
   .rail, .btn-row, header.top, .no-export{display:none !important;}
   .wrap{max-width:none !important; padding:0 !important; margin:0 !important;}
   .step{display:none !important;}
   .step.active{display:block !important;}
-  .card, .report-card, .ticket, .inspect-banner, .notice-box{
+
+  /* Print the report as a clean light automotive document. */
+  #reportStep{
+    display:block !important;
+    background:#f7f5ef !important;
+    color:#18202a !important;
+    border:1px solid #e1ddd3 !important;
+    box-shadow:none !important;
+    padding:18px !important;
+  }
+  #reportStep .card,
+  #reportStep .badge-col,
+  #reportStep .ticket,
+  #reportStep .notice-box{
     break-inside:avoid;
     page-break-inside:avoid;
   }
+  #reportStep .card{
+    background:#ffffff !important;
+    color:#18202a !important;
+    border-color:#d9dde3 !important;
+    box-shadow:none !important;
+  }
+  #reportStep .rec-card{
+    background:#fbfaf7 !important;
+    color:#18202a !important;
+  }
+  #reportStep .rec-card.primary{
+    background:#fffaf0 !important;
+  }
+  #reportStep .inspect-banner{
+    background:#fffaf0 !important;
+    color:#18202a !important;
+  }
+  #reportStep .ticket{
+    background:#ffffff !important;
+  }
+  #reportStep .notice-box{
+    background:#f7f8fa !important;
+  }
+  #reportStep .value-track{
+    background:#e7eaee !important;
+  }
+  #reportStep .value-fill{
+    background:#b7842f !important;
+  }
+  #reportStep .summary-grid div b,
+  #reportStep .rec-highlights li,
+  #reportStep .rec-meta b,
+  #reportStep .value-pct,
+  #reportStep .timeline .what b,
+  #reportStep .insight-list li,
+  #reportStep .score-note b,
+  #reportStep .inspect-banner h3,
+  #reportStep .notice-box b,
+  #reportStep .ticket-top .ttitle{
+    color:#18202a !important;
+  }
+  #reportStep .summary-grid div span,
+  #reportStep .insight-foot,
+  #reportStep .value-note,
+  #reportStep .rec-why,
+  #reportStep .rec-meta,
+  #reportStep .timeline .what span,
+  #reportStep .notice-box,
+  #reportStep .ticket-body p,
+  #reportStep .score-note{
+    color:#5f6873 !important;
+  }
   img{max-width:100% !important;}
   a{color:inherit !important; text-decoration:none !important;}
+  .table-scroll{overflow:visible !important;}
+  .cmp-table,.split-table{min-width:0 !important;}
 }
 </style>
 </head>
