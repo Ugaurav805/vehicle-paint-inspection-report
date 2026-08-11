@@ -15,8 +15,6 @@
 :root{
   --studio-name: "Car Detailing Studio";
   --studio-city: "INDIA";
-  --studio-phone-display: "+91 90000 00000";
-  --studio-whatsapp: "919000000000"; /* digits only, country code, no + or spaces */
   --toolkit-name: "Paint Protection Toolkit";
 
   /* ---- Design tokens ---- */
@@ -535,13 +533,12 @@ a.wa-btn{
   .step{display:none !important;}
   .step.active{display:block !important;}
 
-  /* Print the report as a clean light automotive document. */
   #reportStep{
     display:block !important;
     background:#f7f5ef !important;
     color:#18202a !important;
     border:1px solid #e1ddd3 !important;
-    box-shadow:none !important;
+    box-shadow: none !important;
     padding:18px !important;
   }
   #reportStep .card,
@@ -555,7 +552,7 @@ a.wa-btn{
     background:#ffffff !important;
     color:#18202a !important;
     border-color:#d9dde3 !important;
-    box-shadow:none !important;
+    box-shadow: none !important;
   }
   #reportStep .rec-card{
     background:#fbfaf7 !important;
@@ -1944,12 +1941,6 @@ function statusMessagePlain(r){
 }
 
 function downloadPDF(){
-  /*
-   * Use the browser's native print renderer instead of jsPDF.
-   * The browser print engine preserves the same high-quality layout
-   * the user sees in Print Preview, including CSS, SVGs and images.
-   * The user can choose "Save as PDF" in the print dialog.
-   */
   trackEvent('report_downloaded');
   window.print();
 }
