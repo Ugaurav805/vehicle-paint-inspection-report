@@ -8,13 +8,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <!-- Client-side report → PDF export. No backend, no per-download cost. -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Native, vector-based PDF report — built directly with jsPDF, not a screenshot of the dark UI -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 
+/* ============================================================
+   STUDIO CONFIG
+   Change these values for every new client. Nothing else in
+   this file needs to be touched to re-brand the tool.
+   ============================================================ */
 :root{
-  --studio-name: "Car Detailing Studio";
-  --studio-city: "India";
+  --studio-name: "Burunza Car Detailing Studio";
+  --studio-city: "Almora, Uttarakhand";
+  --studio-phone-display: "+91 90000 00000";
+  --studio-whatsapp: "919000000000"; /* digits only, country code, no + or spaces */
   --toolkit-name: "Paint Protection Toolkit";
 
   /* ---- Design tokens ---- */
@@ -159,6 +167,20 @@ button.btn.ghost:hover{border-color:var(--text-dim);}
 button.btn:disabled{opacity:0.35; cursor:not-allowed;}
 button.btn.wide{flex:none; width:100%;}
 
+
+/* ---------- Illustrative value-retention chart ---------- */
+.value-card{margin-top:16px;}
+.value-chart{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+.value-row{display:grid;grid-template-columns:54px 1fr 52px;align-items:center;gap:10px;}
+.value-year{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);}
+.value-track{height:12px;background:#25282d;border-radius:2px;overflow:hidden;border:1px solid var(--hairline);}
+.value-fill{height:100%;width:0;background:linear-gradient(90deg,var(--steel),var(--gold));transition:width .7s ease;}
+.value-pct{font-family:var(--font-mono);font-size:11px;text-align:right;color:var(--text);}
+.value-note{font-size:11px;line-height:1.6;color:var(--text-dim);margin-top:14px;}
+.value-callout{display:flex;justify-content:space-between;gap:16px;padding:12px 14px;margin-top:14px;background:var(--panel-raised);border:1px solid var(--hairline);}
+.value-callout b{color:var(--gold);}
+@media(max-width:480px){.value-row{grid-template-columns:46px 1fr 48px;gap:8px;}.value-callout{flex-direction:column;gap:4px;}}
+
 /* ---------- Report ---------- */
 .doc-header{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:20px; flex-wrap:wrap; border-bottom:1px solid var(--hairline); padding-bottom:18px;}
 .doc-header-text{flex:1; min-width:170px;}
@@ -185,8 +207,8 @@ button.btn.wide{flex:none; width:100%;}
 .status-banner.risk{background:rgba(181,86,63,0.08); border-color:var(--danger);}
 .status-banner.risk b{color:var(--danger);}
 
-.badge-row{display:flex; gap:10px; margin:18px 0 4px;}
-.badge-col{flex:1; text-align:center; background:var(--panel); border:1px solid var(--hairline); border-radius:var(--radius); padding:14px 8px;}
+.badge-row{display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 4px;}
+.badge-col{flex:1 1 calc(50% - 5px); min-width:120px; text-align:center; background:var(--panel); border:1px solid var(--hairline); border-radius:var(--radius); padding:14px 8px;}
 .badge-col .blabel{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;}
 .badge-col .bval{font-family:var(--font-display); font-weight:600; font-size:15px;}
 .bval.high, .bval.veryhigh{color:var(--danger);}
@@ -252,27 +274,6 @@ button.btn.wide{flex:none; width:100%;}
 .split-table td{padding:7px 0; border-top:1px solid var(--hairline); vertical-align:top;}
 .split-table td:first-child{color:var(--text-dim); padding-right:12px;}
 
-/* ---------- Resale value illustration ---------- */
-.value-card{border-color:#3a2a2a; background:#1a1414;}
-.value-card h3{color:var(--danger); display:flex; align-items:center; gap:7px;}
-.value-chart{display:flex; align-items:flex-end; gap:14px; height:150px; margin:18px 0 6px;}
-.value-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
-.value-bars{display:flex; align-items:flex-end; gap:8px; height:100%; width:100%; justify-content:center;}
-.value-bar{width:16px; border-radius:3px 3px 0 0; transition:height 1s ease;}
-.value-bar.protected{background:var(--ok);}
-.value-bar.unprotected{background:var(--danger);}
-.value-pair-label{font-family:var(--font-mono); font-size:10.5px; white-space:nowrap; margin-bottom:8px; text-align:center;}
-.value-pair-label .p{color:var(--ok);}
-.value-pair-label .u{color:var(--danger);}
-.value-pair-label .sep{color:var(--text-dim); margin:0 2px;}
-.value-col-lbl{font-size:10px; color:var(--text-dim); margin-top:8px; font-family:var(--font-mono); letter-spacing:.03em; text-transform:uppercase;}
-.value-legend{display:flex; gap:18px; justify-content:center; margin-top:6px; font-size:11px; color:var(--text-dim);}
-.value-legend span{display:flex; align-items:center; gap:6px;}
-.value-legend i{width:9px; height:9px; border-radius:2px; display:inline-block;}
-.value-legend i.protected{background:var(--ok);}
-.value-legend i.unprotected{background:var(--danger);}
-.value-foot{font-size:11px; color:var(--text-dim); margin-top:14px; line-height:1.6;}
-
 /* ---------- Big inspection CTA ---------- */
 .inspect-banner{
   background:linear-gradient(160deg, var(--panel-raised), var(--panel));
@@ -336,16 +337,33 @@ a.wa-btn{
   .step-title{font-size:22px;}
   .rec-name{font-size:17px;}
   .gauge-score .num{font-size:32px;}
-  .value-bar{width:13px;}
-  .value-pair-label{font-size:9px;}
-  .badge-row{gap:6px;}
-  .badge-col{padding:11px 5px;}
+  .badge-row{gap:6px; flex-wrap:wrap;}
+  .badge-col{padding:11px 5px; min-width:44%;}
   .badge-col .bval{font-size:13px;}
 }
 
+@page{
+  size:A4;
+  margin:10mm;
+}
+
 @media print{
+  html, body{
+    background:#fff !important;
+    color:#111 !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
   .rail, .btn-row, header.top, .no-export{display:none !important;}
-  body{background:#fff; color:#111;}
+  .wrap{max-width:none !important; padding:0 !important; margin:0 !important;}
+  .step{display:none !important;}
+  .step.active{display:block !important;}
+  .card, .report-card, .ticket, .inspect-banner, .notice-box{
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+  img{max-width:100% !important;}
+  a{color:inherit !important; text-decoration:none !important;}
 }
 </style>
 </head>
@@ -405,12 +423,16 @@ a.wa-btn{
       <input type="tel" id="custPhone" placeholder="e.g. 98765 43210" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
     </div>
     <div class="field">
+      <label>Your Detailing Studio Name <span class="opt">— optional, shown on the report</span></label>
+      <input type="text" id="providerStudioName" placeholder="e.g. Burunza Car Detailing Studio">
+    </div>
+    <div class="field">
       <label>Brand</label>
       <select id="brand" onchange="populateModels()"></select>
     </div>
     <div class="field">
       <label>Model</label>
-      <input list="modelList" id="model" placeholder="Start typing or pick from list">
+      <input list="modelList" id="model" placeholder="Start typing or pick from list" oninput="autoDetectVehicleType()">
       <datalist id="modelList"></datalist>
     </div>
     <div class="field">
@@ -420,6 +442,7 @@ a.wa-btn{
     <div class="field">
       <label>Vehicle Type</label>
       <select id="vehicleType">
+        <option value="">Select vehicle type</option>
         <option value="suv">SUV</option>
         <option value="sedan">Sedan</option>
         <option value="hatchback">Hatchback</option>
@@ -589,6 +612,17 @@ a.wa-btn{
       <ul class="insight-list" id="shineList"></ul>
     </div>
 
+    <div class="card value-card">
+      <h3>How Vehicle Value Typically Declines Over Time</h3>
+      <p class="value-note" style="margin-top:0;">This is an illustrative depreciation trend, not a live valuation of your exact car. Actual resale value depends on model demand, kilometres, service history, ownership, market conditions and physical condition.</p>
+      <div class="value-chart" id="valueChart"></div>
+      <div class="value-callout">
+        <span><b id="valueRetained">--%</b> illustrative value retained</span>
+        <span><b id="valueDeclined">--%</b> illustrative depreciation</span>
+      </div>
+      <div class="value-note">Keeping the original paint in good condition can support presentation and buyer confidence, but protection does not guarantee a specific resale premium.</div>
+    </div>
+
     <div class="card">
       <h3>Recommended Protection</h3>
       <div id="recList"></div>
@@ -626,18 +660,6 @@ a.wa-btn{
       </div>
     </div>
 
-    <div class="card value-card">
-      <h3>⚠ How Unprotected Paint Typically Affects Resale Value</h3>
-      <div class="value-chart" id="valueChart"></div>
-      <div class="value-legend">
-        <span><i class="protected"></i> With Protection</span>
-        <span><i class="unprotected"></i> Without Protection</span>
-      </div>
-      <div class="value-foot">
-        Illustrative pattern based on how buyers and appraisers typically value paint condition — <b>not a valuation of your specific car</b>. Unprotected paint fades, chips and swirls silently over time; a buyer checking the car later sees that condition immediately, even if you haven't noticed it day to day.
-      </div>
-    </div>
-
     <div class="card">
       <h3>Digital Assessment vs. Studio Inspection</h3>
       <div class="table-scroll">
@@ -672,18 +694,18 @@ a.wa-btn{
     <div class="ticket">
       <div class="ticket-top">
         <div>
-          <div class="eyebrow2">Free Inspection</div>
+          <div class="eyebrow2">Complimentary Inspection</div>
           <div class="ttitle">Book Your Studio Visit</div>
         </div>
         <div style="font-size:20px;">🎟</div>
       </div>
       <div class="ticket-body">
-        <p>No paid recommendation is required to use this report. Bring your car in and <span id="ctaName"></span> will guide you based on its actual condition, free of charge.</p>
-        <a class="wa-btn" id="waBtn" href="#" target="_blank">WhatsApp My Report</a>
-        <button class="download-btn" id="downloadPdfBtn" onclick="downloadPDF()">⬇ Download Report (PDF)</button>
+        <p>Your online assessment gives you direction. Your studio inspection gives you certainty — free, no obligation to purchase.</p>
+        <a class="wa-btn" id="waBtn" href="#" target="_blank" onclick="return openBookingWhatsApp()">WhatsApp My Report</a>
+        <button class="download-btn" id="downloadPdfBtn" onclick="downloadPDF()">⬇ Save / Download High-Quality PDF</button>
         <div class="contact-row">
           <a id="callLink" href="#">📞 <span id="phoneDisplay"></span></a>
-          <a href="#" onclick="window.print(); return false;">🖨 Print</a>
+          <a class="no-export" href="#" onclick="window.print(); return false;">🖨 Print</a>
         </div>
       </div>
     </div>
@@ -705,9 +727,15 @@ const STUDIO = {
   whatsapp: getVar('--studio-whatsapp'),
   toolkit: getVar('--toolkit-name'),
 };
+
+// Global assessment state must exist before any event handler or initialization can use it.
+const state = { photo:null };
 document.getElementById('hdrName').textContent = STUDIO.name;
+function activeStudioName(){
+  const v = document.getElementById('providerStudioName').value.trim();
+  return v || STUDIO.name;
+}
 document.getElementById('hdrToolkit').textContent = STUDIO.toolkit;
-document.getElementById('ctaName').textContent = STUDIO.name;
 document.getElementById('phoneDisplay').textContent = STUDIO.phoneDisplay;
 document.getElementById('callLink').href = 'tel:' + STUDIO.phoneDisplay.replace(/\s/g,'');
 
@@ -741,13 +769,60 @@ const VEHICLES = {
   "Land Rover": ["Defender","Range Rover","Discovery Sport"],
   "Other / Not Listed": []
 };
+/* ============================================================
+   VEHICLE-TYPE AUTO-DETECT — prevents the "SUV shown by default
+   on a sedan" mistake. If the typed/selected model matches a
+   known entry, the Vehicle Type field is set automatically. If
+   it's not a known model, the field is left for the person to
+   pick explicitly (no silent wrong default).
+   ============================================================ */
+const VEHICLE_TYPE_MAP = {
+  Swift:'hatchback', Baleno:'hatchback', Brezza:'suv', Fronx:'suv', 'Grand Vitara':'suv', WagonR:'hatchback',
+  'Alto K10':'hatchback', Dzire:'sedan', Ertiga:'suv', Ciaz:'sedan', Invicto:'suv', Jimny:'suv',
+  Nexon:'suv', Punch:'suv', Harrier:'suv', Safari:'suv', Altroz:'hatchback', Tiago:'hatchback', Tigor:'sedan', Curvv:'suv',
+  XUV700:'suv', 'Scorpio-N':'suv', Thar:'suv', XUV300:'suv', Bolero:'suv', XUV400:'suv', 'BE 6':'suv', 'XEV 9e':'suv',
+  Creta:'suv', Venue:'suv', i20:'hatchback', Verna:'sedan', Exter:'suv', Alcazar:'suv', Tucson:'suv', 'Ioniq 5':'suv',
+  Seltos:'suv', Sonet:'suv', Carens:'suv', EV6:'suv',
+  City:'sedan', Amaze:'sedan', Elevate:'suv',
+  'Innova Crysta':'suv', 'Innova Hycross':'suv', Fortuner:'suv', Glanza:'hatchback', 'Urban Cruiser Hyryder':'suv', Camry:'sedan', 'Land Cruiser':'luxury',
+  Virtus:'sedan', Taigun:'suv',
+  Slavia:'sedan', Kushaq:'suv', Kodiaq:'suv',
+  Hector:'suv', Astor:'suv', 'ZS EV':'suv', Comet:'hatchback',
+  Magnite:'suv',
+  Kwid:'hatchback', Triber:'suv', Kiger:'suv',
+  Compass:'suv', Meridian:'suv',
+  C3:'hatchback', 'C3 Aircross':'suv',
+  '3 Series':'luxury', '5 Series':'luxury', X1:'luxury', X3:'luxury', X5:'luxury', '7 Series':'luxury',
+  A4:'luxury', A6:'luxury', Q3:'luxury', Q5:'luxury', Q7:'luxury',
+  'C-Class':'luxury', 'E-Class':'luxury', GLA:'luxury', GLC:'luxury', 'S-Class':'luxury',
+  XC40:'luxury', XC60:'luxury', XC90:'luxury',
+  ES:'luxury', NX:'luxury', RX:'luxury',
+  'Atto 3':'suv', Seal:'sedan',
+  Cooper:'luxury', Countryman:'luxury',
+  Macan:'luxury', Cayenne:'luxury', '911':'luxury',
+  'F-Pace':'luxury', XF:'luxury',
+  Defender:'luxury', 'Range Rover':'luxury', 'Discovery Sport':'luxury',
+};
+function autoDetectVehicleType(){
+  const modelEl = document.getElementById('model');
+  const typeEl = document.getElementById('vehicleType');
+  if(!modelEl || !typeEl) return;
+  const m = modelEl.value.trim();
+  const detected = VEHICLE_TYPE_MAP[m];
+  if(detected){ typeEl.value = detected; }
+}
+
+
 const brandSel = document.getElementById('brand');
 Object.keys(VEHICLES).forEach(b=>{ const o=document.createElement('option'); o.value=b; o.textContent=b; brandSel.appendChild(o); });
 function populateModels(){
+  // VEHICLE_TYPE_MAP is declared above, so this is safe on initial page load.
   const dl = document.getElementById('modelList'); dl.innerHTML='';
   (VEHICLES[brandSel.value]||[]).forEach(m=>{ const o=document.createElement('option'); o.value=m; dl.appendChild(o); });
+  autoDetectVehicleType();
 }
 populateModels();
+
 const yearSel = document.getElementById('year');
 const thisYear = new Date().getFullYear();
 for(let y=thisYear; y>=thisYear-15; y--){ const o=document.createElement('option'); o.value=y; o.textContent=y; yearSel.appendChild(o); }
@@ -755,7 +830,27 @@ for(let y=thisYear; y>=thisYear-15; y--){ const o=document.createElement('option
 /* ============================================================
    STATE + STEP NAV
    ============================================================ */
-const state = { photo:null };
+/* ============================================================
+   LIGHTWEIGHT FUNNEL TRACKING (TLS-V)
+   No backend here, so this logs events to localStorage for your
+   own inspection (open devtools console and run:
+   JSON.parse(localStorage.getItem('sptEvents')) ), and forwards
+   to Google Analytics automatically if you later add a gtag.js
+   snippet to this page (window.gtag). This is the hook point for
+   a real analytics/admin dashboard later — it doesn't replace one.
+   ============================================================ */
+function trackEvent(name, data){
+  try{
+    if(typeof window.gtag === 'function') window.gtag('event', name, data||{});
+    const key = 'sptEvents';
+    const log = JSON.parse(localStorage.getItem(key) || '[]');
+    log.push({name, data: data||{}, t: Date.now()});
+    localStorage.setItem(key, JSON.stringify(log.slice(-200)));
+  }catch(e){ /* tracking must never break the tool */ }
+}
+trackEvent('assessment_started');
+
+
 const TOTAL_STEPS = 4;
 
 function buildRail(){
@@ -797,6 +892,7 @@ function handlePhoto(e){
     const img = document.getElementById('photoPreview');
     img.src = state.photo; img.style.display='block';
     document.getElementById('photoEmpty').style.display='none';
+    trackEvent('photo_uploaded');
     goTo(1);
   };
   reader.readAsDataURL(file);
@@ -817,8 +913,12 @@ function retakePhoto(){
 function validateStep2(){
   const name = document.getElementById('custName').value.trim();
   const model = document.getElementById('model').value.trim();
+  const vType = document.getElementById('vehicleType').value;
   if(!name){ alert('Please enter your name.'); return; }
   if(!model){ alert('Please enter the vehicle model.'); return; }
+  if(!vType){ alert('Please select the vehicle type — the report uses this to show the right typical wear zones.'); return; }
+  document.getElementById('hdrName').textContent = activeStudioName();
+  trackEvent('vehicle_selected', {brand:brandSel.value, model});
   goTo(3);
 }
 function validateStep3(){
@@ -831,9 +931,18 @@ function validateStep4(){
   if(!getSelected('concern') || !getSelected('budget') || !getSelected('ownership')){
     alert('Please answer all three questions.'); return;
   }
+  trackEvent('questions_completed');
   runScanThenReport();
 }
 function restart(){ location.reload(); }
+
+function openBookingWhatsApp(){
+  trackEvent('visit_cta_clicked');
+  const msg = window._baseWaMessage || '';
+  window.open(`https://wa.me/${STUDIO.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+  return false;
+}
+
 
 /* ============================================================
    SCAN TRANSITION — an honest "compiling" moment. This is not
@@ -928,14 +1037,22 @@ function computeReport(){
   const protectionPriority = existing==='none' ? ((isHighExposureDrive||parking==='open') ? 'Very High' : 'High') : (existing==='wax'||existing==='notsure') ? 'Medium' : 'Low';
   const maintenanceDemand = (isHighExposureDrive || existing==='none') ? 'High' : (driving==='mixed' || existing==='wax') ? 'Medium' : 'Low';
 
+  /* Studio Visit Priority — a composite of the three signals above,
+     framed around "how valuable is a physical inspection right now"
+     rather than "how urgent is buying a service". */
+  const TIER_RANK = {Low:0, Medium:1, High:2, 'Very High':3};
+  const TIER_NAMES = ['Low','Medium','High','Very High'];
+  const visitRank = Math.max(TIER_RANK[exposureRisk], TIER_RANK[protectionPriority], TIER_RANK[maintenanceDemand]);
+  const visitPriority = TIER_NAMES[visitRank];
+
   /* ---- Driving-profile insights (no photo claims) ---- */
   const insights = [];
-  if(isHighExposureDrive) insights.push('Highway / hill driving → higher stone-chip exposure on the front end.');
-  if(driving==='mixed') insights.push('Mixed driving → moderate exposure to road debris and grit.');
-  if(parking==='open') insights.push('Open parking → higher UV and weather exposure, faster fading of unprotected paint.');
-  if(parking==='mixed') insights.push('Occasional open parking → some UV and dust exposure to plan around.');
-  if(isDark) insights.push('Dark paint → swirl marks and fine scratches are more visually noticeable.');
-  if(existing==='none') insights.push('No existing protection → fully exposed to everyday contamination and grime.');
+  if(isHighExposureDrive) insights.push('Highway / hill driving — higher stone-chip exposure on the front end.');
+  if(driving==='mixed') insights.push('Mixed driving — moderate exposure to road debris and grit.');
+  if(parking==='open') insights.push('Open parking — higher UV and weather exposure, faster fading of unprotected paint.');
+  if(parking==='mixed') insights.push('Occasional open parking — some UV and dust exposure to plan around.');
+  if(isDark) insights.push('Dark paint — swirl marks and fine scratches are more visually noticeable.');
+  if(existing==='none') insights.push('No existing protection — fully exposed to everyday contamination and grime.');
   if(!insights.length) insights.push('Your current profile shows relatively low everyday exposure — good baseline to build protection on.');
 
   /* ---- Why the car may be losing its shine ---- */
@@ -947,7 +1064,7 @@ function computeReport(){
   if(isHighExposureDrive) shine.push('Road grime and tar from highway driving build up faster than city-only use.');
 
   return { brand, model, year, colour, vehicleType, wearZones, ageYears, ownershipAge, driving, parking, existing, concern, budget, ownership,
-    score, exposureRisk, protectionPriority, maintenanceDemand, insights, shine, isDark, isHighExposureDrive,
+    score, exposureRisk, protectionPriority, maintenanceDemand, visitPriority, insights, shine, isDark, isHighExposureDrive,
     ...deriveRecommendation({colour, ownershipAge, driving, parking, existing, concern, ownership, isDark, isHighExposureDrive}) };
 }
 
@@ -1040,6 +1157,38 @@ const REC = {
   }
 };
 
+
+/* ============================================================
+   ILLUSTRATIVE VALUE RETENTION
+   This is intentionally percentage-based. It is NOT a live market
+   valuation and must never be presented as a guaranteed resale price.
+   ============================================================ */
+function buildValueRetention(r){
+  const years = [0,1,2,3,4,5];
+  const base = [100, 88, 79, 71, 64, 58];
+  // Slightly wider/narrower illustrative curve based on exposure only.
+  const exposureAdj = r.exposureRisk === 'Very High' ? -4 : r.exposureRisk === 'High' ? -2 : r.exposureRisk === 'Low' ? 1 : 0;
+  const protectionAdj = (r.existing==='ppf' || r.existing==='ceramic' || r.existing==='graphene') ? 1 : 0;
+  const values = base.map((v,i)=>Math.max(35, Math.min(100, v + (i===0 ? 0 : exposureAdj + protectionAdj))));
+  return years.map((year,i)=>({year, retained:values[i], declined:100-values[i]}));
+}
+function renderValueChart(r){
+  const chart = document.getElementById('valueChart');
+  if(!chart) return;
+  const data = buildValueRetention(r);
+  chart.innerHTML = data.map(d=>`
+    <div class="value-row">
+      <span class="value-year">Year ${d.year}</span>
+      <div class="value-track"><div class="value-fill" style="width:${d.retained}%"></div></div>
+      <span class="value-pct">${d.retained}%</span>
+    </div>`).join('');
+  const final = data[data.length-1];
+  const vr=document.getElementById('valueRetained');
+  const vd=document.getElementById('valueDeclined');
+  if(vr) vr.textContent=final.retained+'%';
+  if(vd) vd.textContent=final.declined+'%';
+}
+
 /* Generic, non-monetary "why protection matters" — replaces any resale ₹ prediction */
 const PROTECTION_BENEFITS = [
   'Preserves your car\'s original factory paint instead of needing repaint or recorrection later',
@@ -1073,10 +1222,17 @@ function badgeCls(v){ return v.toLowerCase().replace(/\s+/g,''); }
 function generateReport(){
   const r = computeReport();
   const custName = document.getElementById('custName').value.trim();
+  const custPhone = document.getElementById('custPhone').value.trim();
+  const assessmentId = makeReportId();
+  const dateStr = new Date().toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'});
+  const vehicleTitle = custName + "'s " + (r.brand!=='Other / Not Listed' ? r.brand+' ' : '') + r.model;
 
-  document.getElementById('repName').textContent = custName + "'s " + (r.brand!=='Other / Not Listed' ? r.brand+' ' : '') + r.model;
-  document.getElementById('repDate').textContent = new Date().toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'});
-  document.getElementById('repId').textContent = 'Assessment ID: ' + makeReportId();
+  window._lastReport = r;
+  window._reportMeta = { custName, custPhone, assessmentId, dateStr, vehicleTitle, photo: state.photo, presentedBy: activeStudioName() };
+
+  document.getElementById('repName').textContent = vehicleTitle;
+  document.getElementById('repDate').textContent = dateStr;
+  document.getElementById('repId').textContent = 'Assessment ID: ' + assessmentId;
 
   if(state.photo){
     document.getElementById('repPhoto').src = state.photo;
@@ -1102,11 +1258,12 @@ function generateReport(){
     <div class="badge-col"><div class="blabel">Exposure Risk</div><div class="bval ${badgeCls(r.exposureRisk)}">${r.exposureRisk}</div></div>
     <div class="badge-col"><div class="blabel">Protection Priority</div><div class="bval ${badgeCls(r.protectionPriority)}">${r.protectionPriority}</div></div>
     <div class="badge-col"><div class="blabel">Maintenance Demand</div><div class="bval ${badgeCls(r.maintenanceDemand)}">${r.maintenanceDemand}</div></div>
+    <div class="badge-col"><div class="blabel">Studio Visit Priority</div><div class="bval ${badgeCls(r.visitPriority)}">${r.visitPriority}</div></div>
   `;
 
   document.getElementById('insightList').innerHTML = r.insights.map(x=>`<li><span class="arrow">→</span><span>${x}</span></li>`).join('');
   document.getElementById('shineList').innerHTML = r.shine.map(x=>`<li><span class="arrow">→</span><span>${x}</span></li>`).join('');
-  renderValueChart(r.score);
+  renderValueChart(r);
   document.getElementById('statusBanner').innerHTML = statusMessage(r);
 
   document.getElementById('recList').innerHTML = `
@@ -1119,8 +1276,8 @@ function generateReport(){
   document.getElementById('careList').innerHTML = careActions(r).map(t=>`<li><span class="tick">✓</span><span>${t}</span></li>`).join('');
   document.getElementById('timelineList').innerHTML = buildTimeline(r.primary).map(t=>`<li><div class="when">${t.when}</div><div class="what"><b>${t.what}</b><span>${t.detail}</span></div></li>`).join('');
 
-  const msg = `Hi, I just completed the Vehicle Protection Assessment for my ${r.brand} ${r.model} (${r.year}, ${r.colour}). My Protection Priority Score is ${r.score}/100 and the recommended option is: ${r.primary.name}. I'd like to book my free studio inspection.`;
-  document.getElementById('waBtn').href = `https://wa.me/${STUDIO.whatsapp}?text=${encodeURIComponent(msg)}`;
+  window._baseWaMessage = `Hi, I just completed the Vehicle Protection Assessment for my ${r.brand} ${r.model} (${r.year}, ${r.colour}). My Protection Priority Score is ${r.score}/100 and the recommended option is: ${r.primary.name}. I'd like to book my free studio inspection.`;
+  trackEvent('report_generated', {score:r.score, primary:r.primary.name, visitPriority:r.visitPriority});
 }
 
 function recCardHtml(rec, cls, tierLabel, matchTags, note){
@@ -1158,7 +1315,9 @@ function buildTimeline(primary){
 function labelize(v){
   const map = {covered:'Covered', basement:'Basement', mixed:'Mixed', open:'Open parking', city:'City', highway:'Highway', hills:'Hills',
     none:'None', wax:'Wax / Polish', ceramic:'Ceramic Coating', graphene:'Graphene Coating', ppf:'PPF', notsure:'Not sure',
-    suv:'SUV', sedan:'Sedan', hatchback:'Hatchback', luxury:'Luxury / Premium'};
+    suv:'SUV', sedan:'Sedan', hatchback:'Hatchback', luxury:'Luxury / Premium',
+    protection:'Maximum protection', gloss:'Deep gloss', easyClean:'Easy maintenance', resale:'Preserve resale value', balanced:'Balanced protection',
+    economy:'Economy', premium:'Premium', ultra:'Ultra', mid:'Mid-range'};
   return map[v] || v;
 }
 
@@ -1186,65 +1345,370 @@ function statusMessage(r){
   return `<div class="status-banner urgent"><b>Moderate exposure</b>Your car is holding up reasonably well, but a few factors in your profile — ${parkLabel} parking, ${labelize(r.driving).toLowerCase()} driving — mean protection now will prevent avoidable wear down the line.</div>`;
 }
 
-function renderValueChart(score){
-  const riskFactor = (100 - score) / 100; // 0 (low risk) to ~0.9 (high risk)
-  const points = [
-    { label:'Today',    protected:100, unprotected:100 },
-    { label:'Year 1',   protected:92,  unprotected: Math.round(88 - riskFactor*8) },
-    { label:'Year 3',   protected:78,  unprotected: Math.round(64 - riskFactor*10) },
-    { label:'Year 5+',  protected:65,  unprotected: Math.round(46 - riskFactor*10) },
-  ];
-  const maxH = 106;
-  document.getElementById('valueChart').innerHTML = points.map(p=>{
-    const hP = Math.round((p.protected/100)*maxH);
-    const uVal = Math.max(p.unprotected,15);
-    const hU = Math.round((uVal/100)*maxH);
-    return `
-      <div class="value-col">
-        <div class="value-pair-label"><span class="p">${p.protected}%</span><span class="sep">/</span><span class="u">${uVal}%</span></div>
-        <div class="value-bars">
-          <div class="value-bar protected" style="height:${hP}px;"></div>
-          <div class="value-bar unprotected" style="height:${hU}px;"></div>
-        </div>
-        <div class="value-col-lbl">${p.label}</div>
-      </div>`;
-  }).join('');
+/* ============================================================
+   PDF GENERATION — a separate, dedicated light-theme document.
+   This does NOT screenshot the dark web UI. It draws vector text,
+   tables and the customer's photo directly onto a light A4 page,
+   so the PDF stays crisp, on-brand for print, and text stays
+   selectable/searchable.
+   ============================================================ */
+const PDF = {
+  margin: 42,
+  ink:     [26, 26, 26],
+  grey:    [95, 95, 95],
+  dim:     [150, 150, 150],
+  gold:    [140, 104, 44],
+  line:    [222, 218, 210],
+  ok:      [58, 110, 66],
+  danger:  [160, 62, 45],
+  panel:   [247, 245, 240],
+};
+
+function pdfLoadImage(dataUrl){
+  return new Promise(resolve=>{
+    if(!dataUrl){ resolve(null); return; }
+    const img = new Image();
+    img.onload = ()=> resolve({ w:img.naturalWidth, h:img.naturalHeight });
+    img.onerror = ()=> resolve(null);
+    img.src = dataUrl;
+  });
+}
+function pdfImageFormat(dataUrl){ return /^data:image\/png/.test(dataUrl) ? 'PNG' : 'JPEG'; }
+
+function pdfHeader(pdf, pageW, title, presentedBy){
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.gold);
+  pdf.text(presentedBy.toUpperCase() + '  ·  ' + STUDIO.toolkit.toUpperCase(), PDF.margin, 26);
+  pdf.setFont('helvetica','normal'); pdf.setTextColor(...PDF.dim);
+  pdf.text(title, pageW - PDF.margin, 26, {align:'right'});
+  pdf.setDrawColor(...PDF.line); pdf.setLineWidth(0.75);
+  pdf.line(PDF.margin, 34, pageW - PDF.margin, 34);
+}
+function pdfFooter(pdf, pageW, pageH, assessmentId, pageNum, totalPages){
+  pdf.setDrawColor(...PDF.line); pdf.setLineWidth(0.75);
+  pdf.line(PDF.margin, pageH-30, pageW-PDF.margin, pageH-30);
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(8); pdf.setTextColor(...PDF.dim);
+  pdf.text(assessmentId, PDF.margin, pageH-18);
+  pdf.text('Page ' + pageNum + ' of ' + totalPages, pageW-PDF.margin, pageH-18, {align:'right'});
+}
+function pdfSectionTitle(pdf, x, y, eyebrow, title){
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.gold);
+  pdf.text(eyebrow.toUpperCase(), x, y);
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(17); pdf.setTextColor(...PDF.ink);
+  pdf.text(title, x, y+20);
+  return y + 34;
+}
+function pdfBullets(pdf, items, x, y, maxWidth, lineGap){
+  lineGap = lineGap || 15;
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.setTextColor(...PDF.grey);
+  items.forEach(it=>{
+    const lines = pdf.splitTextToSize('•  ' + it, maxWidth);
+    pdf.text(lines, x, y);
+    y += lines.length * lineGap;
+  });
+  return y;
+}
+function pdfParagraph(pdf, text, x, y, maxWidth, size, color, lineGap){
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(size||10); pdf.setTextColor(...(color||PDF.grey));
+  const lines = pdf.splitTextToSize(text, maxWidth);
+  pdf.text(lines, x, y);
+  return y + lines.length * (lineGap || (size?size*1.35:14));
+}
+function pdfBadge(pdf, x, y, w, label, value, tone){
+  const c = tone==='danger' ? PDF.danger : tone==='ok' ? PDF.ok : PDF.gold;
+  pdf.setFillColor(...PDF.panel); pdf.setDrawColor(...PDF.line);
+  pdf.roundedRect(x, y, w, 44, 2, 2, 'FD');
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(...PDF.dim);
+  pdf.text(label.toUpperCase(), x+w/2, y+16, {align:'center'});
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.setTextColor(...c);
+  pdf.text(value, x+w/2, y+32, {align:'center'});
 }
 
-async function downloadPDF(){
-  const btn = document.getElementById('downloadPdfBtn');
-  const originalText = btn.textContent;
-  btn.disabled = true; btn.textContent = 'Preparing PDF…';
-  document.querySelectorAll('.no-export').forEach(e=> e.dataset.prevDisplay = e.style.display);
-  document.querySelectorAll('.no-export').forEach(e=> e.style.display = 'none');
-  try{
-    const target = document.getElementById('reportStep');
-    const canvas = await html2canvas(target, {backgroundColor:'#0a0b0d', scale:2, useCORS:true});
-    const imgData = canvas.toDataURL('image/png');
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p','pt','a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth;
-    const imgHeight = canvas.height * imgWidth / canvas.width;
-    let heightLeft = imgHeight; let position = 0;
-    pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight);
-    heightLeft -= pageHeight;
-    while(heightLeft > 0){
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight);
-      heightLeft -= pageHeight;
-    }
-    const custName = (document.getElementById('custName').value.trim() || 'Customer').replace(/\s+/g,'-');
-    pdf.save(`Vehicle-Protection-Assessment-${custName}.pdf`);
-  }catch(err){
-    console.error(err);
-    alert('Could not generate the PDF right now — please use Print instead, or check your internet connection (the PDF library loads from a CDN).');
-  }finally{
-    document.querySelectorAll('.no-export').forEach(e=> e.style.display = e.dataset.prevDisplay || '');
-    btn.disabled = false; btn.textContent = originalText;
+async function buildAssessmentPDF(){
+  const r = window._lastReport;
+  const meta = window._reportMeta;
+  if(!r || !meta) throw new Error('Report not generated yet');
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p','pt','a4');
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const cw = pageW - PDF.margin*2;
+  const photoDims = await pdfLoadImage(meta.photo);
+
+  /* ---------- PAGE 1 — COVER ---------- */
+  pdf.setFillColor(...PDF.ink); pdf.rect(0,0,pageW,120,'F');
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(255,255,255);
+  pdf.text(meta.presentedBy.toUpperCase(), PDF.margin, 46);
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(9); pdf.setTextColor(...PDF.gold);
+  pdf.text(STUDIO.toolkit.toUpperCase(), PDF.margin, 62);
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(20); pdf.setTextColor(255,255,255);
+  pdf.text('Vehicle Protection Assessment', PDF.margin, 96);
+
+  let y = 160;
+  const leftW = photoDims ? cw*0.52 : cw;
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(9); pdf.setTextColor(...PDF.dim);
+  pdf.text('PREPARED FOR', PDF.margin, y); y+=16;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(15); pdf.setTextColor(...PDF.ink);
+  pdf.text(meta.custName || 'Customer', PDF.margin, y); y+=26;
+
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(9); pdf.setTextColor(...PDF.dim);
+  pdf.text('VEHICLE', PDF.margin, y); y+=16;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.setTextColor(...PDF.ink);
+  pdf.text(`${r.brand} ${r.model}`, PDF.margin, y); y+=17;
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(11); pdf.setTextColor(...PDF.grey);
+  pdf.text(`${r.year} · ${r.colour} · ${labelize(r.vehicleType)}`, PDF.margin, y); y+=30;
+
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(9); pdf.setTextColor(...PDF.dim);
+  pdf.text('ASSESSMENT ID', PDF.margin, y); y+=14;
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.setTextColor(...PDF.grey);
+  pdf.text(meta.assessmentId, PDF.margin, y); y+=18;
+  pdf.text('Date: ' + meta.dateStr, PDF.margin, y);
+
+  if(photoDims && meta.photo){
+    const boxW = cw*0.42, boxH = 220;
+    const boxX = PDF.margin + leftW + cw*0.06, boxY = 160;
+    const ratio = Math.min(boxW/photoDims.w, boxH/photoDims.h);
+    const drawW = photoDims.w*ratio, drawH = photoDims.h*ratio;
+    const drawX = boxX + (boxW-drawW)/2, drawY = boxY + (boxH-drawH)/2;
+    pdf.setDrawColor(...PDF.line); pdf.rect(boxX-2, boxY-2, boxW+4, boxH+4);
+    pdf.addImage(meta.photo, pdfImageFormat(meta.photo), drawX, drawY, drawW, drawH);
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(...PDF.dim);
+    pdf.text('Customer-provided image', boxX+boxW/2, boxY+boxH+14, {align:'center'});
   }
+
+  const takeawayY = pageH - 150;
+  pdf.setFillColor(...PDF.ink); pdf.rect(PDF.margin, takeawayY, cw, 44, 'F');
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(...PDF.gold);
+  pdf.text('RECOMMENDED FOR THIS VEHICLE', PDF.margin+14, takeawayY+17);
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(15); pdf.setTextColor(255,255,255);
+  pdf.text(r.primary.name + '  ·  Visit Priority: ' + r.visitPriority, PDF.margin+14, takeawayY+33);
+
+  const noticeY = pageH - 90;
+  pdf.setFillColor(...PDF.panel); pdf.rect(PDF.margin, noticeY, cw, 46, 'F');
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.gold);
+  pdf.text('PRELIMINARY ASSESSMENT', PDF.margin+12, noticeY+17);
+  pdfParagraph(pdf, 'This is a profile-based digital assessment, not a physical paint inspection. See page 8 for full details.', PDF.margin+12, noticeY+30, cw-24, 8.5, PDF.grey, 11);
+
+  /* ---------- PAGE 2 — VEHICLE PROFILE ---------- */
+  pdf.addPage();
+  y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Your Vehicle Profile');
+  pdf.autoTable({
+    startY: y, margin:{left:PDF.margin, right:PDF.margin}, tableWidth:cw,
+    theme:'plain',
+    styles:{ font:'helvetica', fontSize:10, textColor:PDF.ink, cellPadding:{top:8,bottom:8,left:0,right:8} },
+    columnStyles:{ 0:{fontStyle:'bold', textColor:PDF.dim, cellWidth:150}, 1:{textColor:PDF.ink} },
+    body:[
+      ['Brand', r.brand], ['Model', r.model], ['Vehicle Type', labelize(r.vehicleType)],
+      ['Year', r.year], ['Colour', r.colour],
+      ['Ownership', ({new:'Just purchased', lt6:'Under 6 months', m6to12:'6–12 months', y1to3:'1–3 years', y3plus:'3+ years'})[r.ownershipAge] || r.ownershipAge],
+      ['Driving Pattern', labelize(r.driving)], ['Parking', labelize(r.parking)],
+      ['Existing Protection', labelize(r.existing)], ['Stated Priority', labelize(r.concern)],
+      ['Budget Comfort', labelize(r.budget)],
+    ],
+    didParseCell: (d)=>{ if(d.row.index>0){ d.cell.styles.lineWidth = {top:0.5}; d.cell.styles.lineColor = PDF.line; } }
+  });
+
+  /* ---------- PAGE 3 — PROTECTION PROFILE ---------- */
+  pdf.addPage();
+  y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Protection Profile');
+
+  // Big skimmable headline — the one-line takeaway, read this and you have the gist
+  const status = statusMessagePlain(r);
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(21); pdf.setTextColor(...(status.tone==='risk'?PDF.danger:status.tone==='good'?PDF.ok:PDF.gold));
+  const headlineLines = pdf.splitTextToSize(status.title, cw);
+  pdf.text(headlineLines, PDF.margin, y);
+  y += headlineLines.length * 25 + 6;
+  y = pdfParagraph(pdf, status.body, PDF.margin, y, cw, 10.5, PDF.grey, 15);
+  y += 18;
+
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(36); pdf.setTextColor(...PDF.gold);
+  pdf.text(String(r.score), PDF.margin, y+38);
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.dim);
+  pdf.text('/ 100\nPROTECTION PRIORITY SCORE', PDF.margin+56, y+30);
+  y += 58;
+  const badgeW = (cw - 24) / 4;
+  pdfBadge(pdf, PDF.margin, y, badgeW, 'Exposure Risk', r.exposureRisk, r.exposureRisk.includes('High')?'danger':'ok');
+  pdfBadge(pdf, PDF.margin+badgeW+8, y, badgeW, 'Protection Priority', r.protectionPriority, r.protectionPriority.includes('High')?'danger':'ok');
+  pdfBadge(pdf, PDF.margin+(badgeW+8)*2, y, badgeW, 'Maintenance Demand', r.maintenanceDemand, r.maintenanceDemand==='High'?'danger':'ok');
+  pdfBadge(pdf, PDF.margin+(badgeW+8)*3, y, badgeW, 'Studio Visit Priority', r.visitPriority, r.visitPriority.includes('High')?'danger':'ok');
+  y += 60;
+  pdfParagraph(pdf, 'Based on the information you provided — reflects age, colour, driving environment, parking exposure, existing protection and stated priorities. Not a measurement of paint thickness, paint condition or surface defects.', PDF.margin, y, cw, 8, PDF.dim, 11);
+
+  /* ---------- PAGE 4 — PROFILE INSIGHTS ---------- */
+  pdf.addPage();
+  y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'What Your Profile Suggests');
+  y = pdfParagraph(pdf, 'Profile-based insight — not a visual diagnosis of your photo.', PDF.margin, y, cw, 8.5, PDF.dim, 11);
+  y += 10;
+  y = pdfBullets(pdf, r.insights, PDF.margin, y, cw, 15);
+  y += 18;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.setTextColor(...PDF.ink);
+  pdf.text('Why Paint Loses Its Shine Over Time', PDF.margin, y); y += 18;
+  y = pdfBullets(pdf, r.shine, PDF.margin, y, cw, 15);
+  y += 14;
+  pdf.setDrawColor(...PDF.line); pdf.line(PDF.margin, y, pageW-PDF.margin, y); y += 20;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.setTextColor(...PDF.ink);
+  pdf.text('How Vehicle Value Typically Declines Over Time', PDF.margin, y); y += 16;
+  pdfParagraph(pdf, 'Illustrative depreciation trend only — not a live valuation of this vehicle. Actual resale value depends on model demand, kilometres, service history, ownership, market conditions and physical condition.', PDF.margin, y, cw, 8, PDF.dim, 11);
+  y += 18;
+  const valueData = buildValueRetention(r);
+  valueData.forEach(d=>{
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(8); pdf.setTextColor(...PDF.dim);
+    pdf.text('Year ' + d.year, PDF.margin, y+8);
+    const bx=PDF.margin+44, bw=cw-92, bh=10;
+    pdf.setFillColor(...PDF.panel); pdf.roundedRect(bx,y,bw,bh,2,2,'F');
+    pdf.setFillColor(...PDF.gold); pdf.roundedRect(bx,y,bw*(d.retained/100),bh,2,2,'F');
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(8); pdf.setTextColor(...PDF.ink);
+    pdf.text(d.retained+'%', pageW-PDF.margin, y+8, {align:'right'});
+    y += 18;
+  });
+  pdfParagraph(pdf, 'Keeping original paint in good condition can support presentation and buyer confidence, but protection does not guarantee a specific resale premium.', PDF.margin, y+2, cw, 8, PDF.grey, 11);
+
+  /* ---------- PAGE 5 — RECOMMENDATION ---------- */
+  pdf.addPage();
+  y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Your Protection Recommendation');
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.gold);
+  pdf.text('PRIMARY RECOMMENDATION', PDF.margin, y); y+=24;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(26); pdf.setTextColor(...PDF.ink);
+  pdf.text(r.primary.name, PDF.margin, y); y+=20;
+  if(r.matchTags && r.matchTags.length){
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.ok);
+    pdf.text(r.matchTags.map(t=>'• '+t).join('    '), PDF.margin, y); y+=20;
+  }
+  // One-line takeaway before the detail, for anyone just skimming
+  if(r.primary.highlights && r.primary.highlights[0]){
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(...PDF.grey);
+    const takeawayLines = pdf.splitTextToSize(r.primary.highlights[0], cw);
+    pdf.text(takeawayLines, PDF.margin, y);
+    y += takeawayLines.length * 14 + 10;
+  }
+  y = pdfParagraph(pdf, r.primary.why, PDF.margin, y, cw, 9.5, PDF.grey, 13); y+=6;
+  y = pdfBullets(pdf, (r.primary.highlights||[]).slice(1), PDF.margin, y, cw, 14);
+  if(r.note){
+    y += 6;
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(9); pdf.setTextColor(...PDF.gold);
+    pdf.text('WHY NOW', PDF.margin, y); y+=13;
+    y = pdfParagraph(pdf, r.note, PDF.margin, y, cw, 9, PDF.grey, 12.5);
+  }
+  y += 14;
+  pdf.setDrawColor(...PDF.line); pdf.line(PDF.margin, y, pageW-PDF.margin, y); y+=22;
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.dim);
+  pdf.text('ALTERNATIVE', PDF.margin, y); y+=16;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.setTextColor(...PDF.ink);
+  pdf.text(r.secondary.name, PDF.margin, y); y+=15;
+  y = pdfParagraph(pdf, r.secondary.why, PDF.margin, y, cw, 9, PDF.grey, 12.5);
+  y += 16;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(9); pdf.setTextColor(...PDF.ink);
+  pdf.text('TO CONFIRM DURING STUDIO INSPECTION', PDF.margin, y); y+=15;
+  y = pdfBullets(pdf, ['Actual paint condition','Paint thickness','Existing repair / repaint indicators','Exact PPF or coating coverage needed','Surface preparation requirements'], PDF.margin, y, cw, 13);
+
+  /* ---------- PAGE 6 — COMPARISON ---------- */
+  pdf.addPage();
+  y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Protection Comparison');
+  pdf.autoTable({
+    startY:y, margin:{left:PDF.margin,right:PDF.margin}, tableWidth:cw,
+    head:[['Factor','PPF','Ceramic','Graphene']],
+    body:[
+      ['Stone Chips','5/5','1/5','1/5'],
+      ['Scratch Protection','5/5','2/5','2/5'],
+      ['Gloss','4/5','5/5','5/5'],
+      ['Hydrophobic','4/5','5/5','5/5'],
+      ['Best For','Protection','Gloss','Balanced'],
+    ],
+    styles:{ font:'helvetica', fontSize:9.5, textColor:PDF.ink, halign:'center', lineColor:PDF.line, lineWidth:0.5 },
+    headStyles:{ fillColor:PDF.panel, textColor:PDF.ink, fontStyle:'bold', fontSize:8.5 },
+    columnStyles:{ 0:{halign:'left', fontStyle:'bold'} },
+  });
+  y = pdf.lastAutoTable.finalY + 14;
+  pdfParagraph(pdf, 'Illustrative comparison — exact product characteristics, warranty and suitability depend on the studio\'s selected product.', PDF.margin, y, cw, 8, PDF.dim, 11);
+
+  /* ---------- PAGE 7 — DIGITAL VS STUDIO + VISIT CTA ---------- */
+  pdf.addPage();
+  y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Digital Assessment vs. Studio Inspection');
+  pdf.autoTable({
+    startY:y, margin:{left:PDF.margin,right:PDF.margin}, tableWidth:cw,
+    head:[['This Digital Assessment','Studio Inspection']],
+    body:[
+      ['Vehicle photo','Professional visual inspection'],
+      ['Vehicle profile & answers','Paint thickness measurement'],
+      ['Driving & parking exposure','Panel-by-panel inspection'],
+      ['Protection history you shared','Previous repaint detection'],
+      ['Stated priorities','Clear-coat & defect assessment'],
+      ['Preliminary recommendation','Final recommendation'],
+    ],
+    styles:{ font:'helvetica', fontSize:9.5, textColor:PDF.ink, lineColor:PDF.line, lineWidth:0.5 },
+    headStyles:{ fillColor:PDF.panel, textColor:PDF.ink, fontStyle:'bold', fontSize:9 },
+    columnStyles:{ 1:{textColor:PDF.gold} },
+  });
+  y = pdf.lastAutoTable.finalY + 24;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.setTextColor(...PDF.ink);
+  pdf.text('Online assessment gives you direction.', PDF.margin, y); y+=17;
+  pdf.text('Studio inspection gives you certainty.', PDF.margin, y); y+=26;
+
+  pdf.setFillColor(...PDF.panel); pdf.roundedRect(PDF.margin, y, cw, 108, 3, 3, 'F');
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(8.5); pdf.setTextColor(...PDF.gold);
+  pdf.text('YOUR NEXT STEP · COMPLIMENTARY STUDIO INSPECTION', PDF.margin+16, y+22);
+  const ctaText = 'Bring your car to the studio and we will inspect it panel by panel using proper equipment and trained visual assessment, then guide you honestly on what it actually needs. No obligation to purchase.';
+  pdfParagraph(pdf, ctaText, PDF.margin+16, y+40, cw-32, 9.5, PDF.grey, 13);
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(9); pdf.setTextColor(...PDF.ok);
+  pdf.text('Free inspection · No obligation to purchase', PDF.margin+16, y+96);
+
+  /* ---------- PAGE 8 — NOTICE + CONTACT ---------- */
+  pdf.addPage();
+  y = pdfSectionTitle(pdf, PDF.margin, 60, 'Vehicle Protection Assessment', 'Assessment Notice & Contact');
+  pdf.setFillColor(...PDF.panel); pdf.rect(PDF.margin, y, cw, 118, 'F');
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(9); pdf.setTextColor(...PDF.ink);
+  pdf.text('IMPORTANT ASSESSMENT NOTICE', PDF.margin+14, y+20);
+  const noticeText = 'This report is generated from the vehicle information, usage responses and image provided by the customer. It is a preliminary protection assessment and does not constitute a physical paint inspection or measurement of paint thickness, clear-coat condition, previous repairs, coating performance or hidden defects. For an accurate understanding of the vehicle\'s actual condition, an in-person inspection using appropriate professional equipment and trained visual assessment is recommended.';
+  pdfParagraph(pdf, noticeText, PDF.margin+14, y+38, cw-28, 9, PDF.grey, 13);
+  y += 140;
+
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.setTextColor(...PDF.ink);
+  pdf.text('Bring this report to the studio.', PDF.margin, y); y+=16;
+  y = pdfParagraph(pdf, 'We\'ll compare your digital assessment with the physical inspection and finalize the right protection plan together.', PDF.margin, y, cw, 9.5, PDF.grey, 13);
+  y += 22;
+  pdf.setDrawColor(...PDF.line); pdf.line(PDF.margin, y, pageW-PDF.margin, y); y+=22;
+
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(9); pdf.setTextColor(...PDF.dim);
+  pdf.text('STUDIO CONTACT', PDF.margin, y); y+=18;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.setTextColor(...PDF.ink);
+  pdf.text(meta.presentedBy, PDF.margin, y); y+=18;
+  pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5); pdf.setTextColor(...PDF.grey);
+  pdf.text('Phone / WhatsApp: ' + STUDIO.phoneDisplay, PDF.margin, y); y+=32;
+
+  pdf.setFont('helvetica','italic'); pdf.setFontSize(9); pdf.setTextColor(...PDF.gold);
+  pdf.text('"Online assessment gives you direction. Studio inspection gives you certainty."', PDF.margin, y);
+
+  /* ---------- HEADERS + FOOTERS ON ALL PAGES ---------- */
+  const totalPages = pdf.internal.getNumberOfPages();
+  for(let p=2; p<=totalPages; p++){
+    pdf.setPage(p);
+    pdfHeader(pdf, pageW, 'Assessment ' + meta.assessmentId, meta.presentedBy);
+  }
+  for(let p=1; p<=totalPages; p++){
+    pdf.setPage(p);
+    pdfFooter(pdf, pageW, pageH, meta.assessmentId, p, totalPages);
+  }
+
+  return pdf;
+}
+
+function statusMessagePlain(r){
+  const isProtected = (r.existing==='ppf' || r.existing==='ceramic' || r.existing==='graphene');
+  if(isProtected && r.score >= 70) return { title:'Protection is working', tone:'good', body:`Existing ${labelize(r.existing)} is doing its job, and current parking/driving habits are keeping exposure low. Keep this routine up.` };
+  if(!isProtected && r.score >= 70) return { title:'Good condition — but unprotected', tone:'urgent', body:'Right now the car is in great shape — exactly why this is the best window to act. Without protection, this profile can start showing visible wear within the first year.' };
+  if(r.score < 45) return { title:'High exposure — act soon', tone:'risk', body:'The current profile puts this car at real risk of visible wear soon. Protecting it now is meaningfully cheaper than correcting paint damage later.' };
+  return { title:'Moderate exposure', tone:'urgent', body:'The car is holding up reasonably well, but a few exposure factors in this profile mean protection now will prevent avoidable wear down the line.' };
+}
+
+function downloadPDF(){
+  /*
+   * Use the browser's native print renderer instead of jsPDF.
+   * The browser print engine preserves the same high-quality layout
+   * the user sees in Print Preview, including CSS, SVGs and images.
+   * The user can choose "Save as PDF" in the print dialog.
+   */
+  trackEvent('report_downloaded');
+  window.print();
 }
 </script>
 </body>
